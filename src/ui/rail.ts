@@ -32,9 +32,11 @@ export function mountRail(root: HTMLElement) {
       <div id="mode"></div>
       <div id="shape"></div>
       <div class="row">
-        <label>fg <input id="fg" type="color"></label>
-        <label>bg <input id="bg" type="color"></label>
-        <label title="transparent background"><input id="bgt" type="checkbox"> no bg</label>
+        <label>text color <input id="fg" type="color"></label>
+      </div>
+      <div class="row">
+        <label>background <input id="bg" type="color"></label>
+        <label title="transparent background"><input id="bgt" type="checkbox"> no background</label>
       </div>
       <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
