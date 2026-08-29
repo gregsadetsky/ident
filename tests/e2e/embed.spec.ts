@@ -67,14 +67,16 @@ test("terminal zip: frames.txt parses, node loader and bash player agree on fram
   await page.click('.tab[data-id="terminal"]');
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("text=get terminal .zip")]);
   const files = await unzip(dl);
-  expect(Object.keys(files).sort()).toEqual(["frames.txt", "play.js", "play.sh", "readme.txt"]);
+  expect(Object.keys(files).sort()).toEqual(["frames.txt", "play.mjs", "play.sh", "readme.txt"]);
   const head = files["frames.txt"].split("\n")[0];
   expect(head).toMatch(/^# ident frames cols=\d+ rows=\d+ fps=30 count=75$/);
   const seps = files["frames.txt"].split("\n").filter((l) => l === "=====").length;
   expect(seps).toBe(75);
   const dir = materialize(files);
   const { execSync } = await import("child_process");
-  const node = execSync(`node -e 'const c=require("./play.js").loadFrames("frames.txt"); console.log(JSON.stringify([c.frames.length, c.rows, c.frames.every(f => f.split("\\n").length === c.rows)]))'`, { cwd: dir }).toString();
+  // a "type": "module" package.json next to it must not matter (that's why it's .mjs)
+  writeFileSync(join(dir, "package.json"), '{"type":"commonjs"}');
+  const node = execSync(`node --input-type=module -e 'import { loadFrames } from "./play.mjs"; const c = loadFrames("frames.txt"); console.log(JSON.stringify([c.frames.length, c.rows, c.frames.every(f => f.split("\\n").length === c.rows)]))'`, { cwd: dir }).toString();
   expect(JSON.parse(node)).toEqual([75, Number(head.match(/rows=(\d+)/)![1]), true]);
   // bash player, one loop, output captured: one clear sequence per frame
   const sh = execSync("bash ./play.sh frames.txt 1 | cat", { cwd: dir, timeout: 30000 });

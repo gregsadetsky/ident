@@ -51,21 +51,23 @@ printf '\\033[?25h\\n'
 `;
 
 export const PLAY_JS = `#!/usr/bin/env node
-// minimal player + loader for frames.txt. drop loadFrames() into your own tui code:
-//   const { loadFrames } = require("./play.js"); const clip = loadFrames("frames.txt");
+// minimal player + loader for frames.txt (esm, so it runs the same wherever you drop it).
+// drop loadFrames() into your own tui code:
+//   import { loadFrames } from "./play.mjs"; const clip = loadFrames("frames.txt");
 //   clip.frames[i] is a string of clip.rows lines; play at clip.fps
-const fs = require("fs");
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
 const SEP = "${SEP}";
 
-function loadFrames(path) {
-  const txt = fs.readFileSync(path, "utf8").replace(/\\n$/, "");
+export function loadFrames(path) {
+  const txt = readFileSync(path, "utf8").replace(/\\n$/, "");
   const parts = txt.split("\\n" + SEP + "\\n");
   const head = parts.shift() || "";
   const num = (k) => Number((head.match(new RegExp(k + "=(\\\\d+)")) || [])[1] || 0);
   return { cols: num("cols"), rows: num("rows"), fps: num("fps"), frames: parts };
 }
 
-function play(clip, loops = 1) {
+export function play(clip, loops = 1) {
   process.stdout.write("\\x1b[?25l");
   let i = 0, n = 0;
   const stop = () => { process.stdout.write("\\x1b[?25h\\n"); process.exit(0); };
@@ -76,8 +78,7 @@ function play(clip, loops = 1) {
   }, 1000 / clip.fps);
 }
 
-module.exports = { loadFrames, play };
-if (require.main === module) play(loadFrames(process.argv[2] || "frames.txt"), Number(process.argv[3] ?? 1));
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) play(loadFrames(process.argv[2] || "frames.txt"), Number(process.argv[3] ?? 1));
 `;
 
 export function terminalReadme(clip: AsciiClip): string {
@@ -85,7 +86,7 @@ export function terminalReadme(clip: AsciiClip): string {
 
 frames.txt  ${clip.frames.length} ascii frames, ${clip.cols}x${clip.rows} chars, ${clip.fps} fps, separated by a line of ${SEP}
 play.sh     bash player: ./play.sh [frames.txt] [loops]   (0 loops = forever)
-play.js     node player + loader: node play.js, or require("./play.js").loadFrames("frames.txt") in your own tui
+play.mjs    node player + loader: node play.mjs, or import { loadFrames } from "./play.mjs" in your own tui
 
 the format is trivial to read from any language: skip the first line, split on "\\n${SEP}\\n".
 `;
@@ -96,7 +97,7 @@ export function downloadTerminalBundle() {
   const zip = zipSync({
     "frames.txt": strToU8(framesTxt(clip)),
     "play.sh": strToU8(PLAY_SH),
-    "play.js": strToU8(PLAY_JS),
+    "play.mjs": strToU8(PLAY_JS),
     "readme.txt": strToU8(terminalReadme(clip)),
   }, { level: 6 });
   download(new Blob([zip as BlobPart], { type: "application/zip" }), exportName(state.mark.text + " terminal", "zip"));
