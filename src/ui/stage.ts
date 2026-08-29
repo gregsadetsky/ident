@@ -4,6 +4,7 @@ import { canvasToAscii, asciiGrid } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
 import { downloadEmbed, download404 } from "../export/embed";
+import { downloadTerminalBundle } from "../export/frames";
 import { makeFloating } from "./floating";
 import { normalizeSiteUrl } from "../core/url";
 
@@ -11,11 +12,11 @@ import { normalizeSiteUrl } from "../core/url";
 interface Export { label: string; run?: () => void }
 interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean }
 const DESTS: Dest[] = [
-  { id: "header", label: "site header", exports: [{ label: "get embed .html", run: downloadEmbed }] },
-  { id: "404", label: "404", exports: [{ label: "get 404.html", run: download404 }] },
+  { id: "header", label: "site header", exports: [{ label: "get embed .zip", run: downloadEmbed }] },
+  { id: "404", label: "404", exports: [{ label: "get 404 .zip", run: download404 }] },
   { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") },
     { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }] },
-  { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true },
+  { id: "terminal", label: "terminal", exports: [{ label: "get terminal .zip", run: downloadTerminalBundle }], asciiLocked: true },
 ];
 
 export function mountStage(root: HTMLElement) {
@@ -41,8 +42,9 @@ export function mountStage(root: HTMLElement) {
     const b = document.createElement("button"); b.className = "tab"; b.dataset.id = d.id;
     const px = document.createElement("canvas"); px.width = 160; px.height = 60;
     const asc = document.createElement("pre");
+    const thumb = document.createElement("div"); thumb.className = "thumb"; thumb.appendChild(asc);
     const name = document.createElement("span"); name.textContent = d.label;
-    b.append(px, asc, name);
+    b.append(px, thumb, name);
     b.onclick = () => update((s) => { s.dest = d.id; });
     tabs.appendChild(b); thumbs.set(d.id, { px, asc });
   }
@@ -116,17 +118,21 @@ export function mountStage(root: HTMLElement) {
       const t = thumbs.get(d.id)!;
       const view = d.asciiLocked ? "ascii" : state.view[d.id];
       const src = frameFor(d.id);
-      t.px.hidden = view !== "px"; t.asc.hidden = view !== "ascii";
+      t.px.hidden = view !== "px"; t.asc.parentElement!.hidden = view !== "ascii";
       if (view === "px") drawFrame(t.px, src, rect);
       else {
+        // real grid for the mark rect, shrunk with a css transform (not a low-res grid)
+        const g = asciiGrid(state.mark.w, state.mark.h);
         if (!asciiSmall.has(src)) {
           thumbCrop.width = state.mark.w; thumbCrop.height = state.mark.h;
           const c2 = thumbCrop.getContext("2d")!;
           c2.clearRect(0, 0, thumbCrop.width, thumbCrop.height);
           c2.drawImage(src, rect.x, rect.y, rect.w, rect.h, 0, 0, thumbCrop.width, thumbCrop.height);
-          asciiSmall.set(src, canvasToAscii(thumbCrop, 48));
+          asciiSmall.set(src, canvasToAscii(thumbCrop, undefined, g));
         }
         t.asc.textContent = asciiSmall.get(src)!;
+        const scale = Math.min(150 / (g.cols * 6.02), 52 / (g.rows * 10)); // 10px mono ~ 6px wide
+        const tr = `scale(${scale.toFixed(3)})`; if (t.asc.style.transform !== tr) { t.asc.style.transform = tr; t.asc.style.width = g.cols + "ch"; }
       }
     }
   });
@@ -154,7 +160,8 @@ const CONTEXT: Record<Destination, (view: string) => string> = {
   "404": () => `
     <div class="page404">
       <span class="slot"></span>
-      <p>404 — page not found · <a href="#">go home</a></p>
+      <p>404 — page not found</p>
+      <p><a href="#">go home</a></p>
     </div>`,
   readme: () => `
     <div class="gh">
