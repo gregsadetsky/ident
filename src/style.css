@@ -75,7 +75,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 /* 404 */
 .page404 { background: #000; color: #5dd77a; border-radius: 6px; padding: 40px; min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
 .page404 p { margin: 0; }
-.page404 a { color: #5dd77a; }
+.page404 a { color: inherit; }
 .page404 .slot canvas { width: var(--fw); }
 
 /* readme: real github screenshot, slot top-left at the readme content edge (159,678) of 2886x1966; size follows the mark (set in js) */

@@ -17,6 +17,7 @@ export interface IdentConfig {
   loop?: number;     // ms: replay the enter move on a timer (for places with no hover)
   color?: string;    // ascii text color (default: inherit)
   background?: string; // ascii block background (default: none)
+  noBg?: boolean;      // px mode: skip the mark's bg box (the page already has that color)
 }
 export interface IdentHandle { trigger(move: string): void; enter(): void; react(): void; destroy(): void }
 
@@ -82,7 +83,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
       raf = requestAnimationFrame(loop); return;
     }
     ctx.clearRect(0, 0, out.width, out.height);
-    if (mark.bg !== "transparent") {
+    if (mark.bg !== "transparent" && !cfg.noBg) {
       const m = (BLEED - 1) / 2; ctx.fillStyle = mark.bg;
       ctx.fillRect(mark.w * m * RES, mark.h * m * RES, mark.w * RES, mark.h * RES);
     }

@@ -124,11 +124,12 @@ export function mountStage(root: HTMLElement) {
       const g = asciiGrid(frameSize().w, frameSize().h);
       ctxEl.pre.textContent = canvasToAscii(stageFrame, undefined, g);
       const w = g.cols + "ch"; if (ctxEl.pre.style.width !== w) ctxEl.pre.style.width = w;
-      if (state.dest === "404") { // an ascii web page has colors; a terminal doesn't
-        const bg = state.mark.bg === "transparent" ? "" : state.mark.bg;
-        if (ctxEl.pre.style.color !== state.mark.fg) ctxEl.pre.style.color = state.mark.fg;
-        if (ctxEl.pre.style.background !== bg) ctxEl.pre.style.background = bg;
-      }
+    }
+    // the 404 page takes the mark's colors: fg for all its text, bg for the whole page (black when none)
+    if (state.dest === "404") {
+      const pg = context.querySelector<HTMLElement>(".page404");
+      const bg = state.mark.bg === "transparent" ? "#000" : state.mark.bg;
+      if (pg && (pg.style.color !== state.mark.fg || pg.style.background !== bg)) { pg.style.color = state.mark.fg; pg.style.background = bg; }
     }
     // thumbnails: cropped to the mark rect (the bleed would make them tiny)
     const rect = markRect();

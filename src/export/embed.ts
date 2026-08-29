@@ -35,9 +35,10 @@ export function embedHtml(): string {
 
 // same runtime, 404 dressing: black page, ascii if that's how the 404 destination is set
 export function html404(ascii: boolean): string {
-  return page(ascii ? { ascii: true, color: state.mark.fg, background: state.mark.bg === "transparent" ? "" : state.mark.bg } : {},
+  const bg = state.mark.bg === "transparent" ? "#000" : state.mark.bg;
+  return page(ascii ? { ascii: true } : { noBg: true },
     `<main>\n  <div id="ident"></div>\n  <p>404 — page not found</p>\n  <p><a href="/">go home</a></p>\n</main>`,
-    `body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #000; color: #5dd77a; font: 14px ui-monospace, Menlo, monospace; }
+    `body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: ${bg}; color: ${state.mark.fg}; font: 14px ui-monospace, Menlo, monospace; }
 main { display: flex; flex-direction: column; align-items: center; gap: 32px; }
 a { color: inherit; }`);
 }
