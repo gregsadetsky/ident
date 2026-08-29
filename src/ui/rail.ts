@@ -74,7 +74,7 @@ export function mountRail(root: HTMLElement) {
   bg.oninput = () => { bgt.checked = false; setBg(); }; bgt.onchange = setBg;
 
   const size = $<HTMLInputElement>("size"), sizeOut = $<HTMLOutputElement>("sizeOut");
-  const showSize = () => { sizeOut.textContent = `${state.mark.size}px · ${state.mark.w}×${state.mark.h}`; };
+  const showSize = () => { sizeOut.textContent = `${state.mark.size}px`; };
   size.value = String(state.mark.size); showSize();
   size.oninput = () => update((s) => { s.mark.size = +size.value; });
   subscribe(showSize);
