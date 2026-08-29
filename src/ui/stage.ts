@@ -22,13 +22,15 @@ const DESTS: Dest[] = [
 
 export function mountStage(root: HTMLElement) {
   root.innerHTML = `
-    <h2 class="previews">Previews</h2>
-    <nav class="tabs"></nav>
-    <header class="stagehead">
-      <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
-      <span class="exports"></span>
-    </header>
     <div class="context"></div>
+    <footer class="dock">
+      <div class="dockbar">
+        <h2 class="previews">Previews</h2>
+        <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
+        <span class="exports"></span>
+      </div>
+      <nav class="tabs"></nav>
+    </footer>
   `;
   const tabs = root.querySelector<HTMLElement>(".tabs")!;
   const tgl = root.querySelector<HTMLElement>(".tgl")!;
@@ -164,6 +166,7 @@ export function mountStage(root: HTMLElement) {
 
 const CONTEXT: Record<Destination, (view: string) => string> = {
   header: () => `
+    <h2 class="urlhead">Preview on your site</h2>
     <div class="urlbar"><input id="siteurl" type="text" placeholder="https://your-site.com (if iframe-able)"></div>
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
