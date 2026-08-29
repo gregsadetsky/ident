@@ -94,8 +94,11 @@ export function mountRail(root: HTMLElement) {
   speed.value = String(state.tuning.speed); bounce.value = String(state.tuning.bounce);
   speed.oninput = () => update((s) => { s.tuning.speed = +speed.value; });
   bounce.oninput = () => update((s) => { s.tuning.bounce = +bounce.value; });
+  // letting go of a tuning slider replays the on-load move so the change is visible
+  speed.onchange = triggerEnter; bounce.onchange = triggerEnter;
   const persist = $<HTMLInputElement>("persist"); persist.value = String(state.tuning.persist);
   persist.oninput = () => update((s) => { s.tuning.persist = +persist.value; });
+  persist.onchange = triggerEnter;
 
   // drop anywhere on the page
   const dz = $("drop");
