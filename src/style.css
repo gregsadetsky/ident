@@ -64,8 +64,10 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 /* the fake header's mark is the mark's real box; the canvas overflows it by the bleed */
 .fakepage .slot { position: relative; width: var(--mw); height: var(--mh); }
 .fakepage .slot canvas { position: absolute; width: 150%; height: 150%; max-width: none; left: -25%; top: -25%; }
-.fakepage .slot pre { position: absolute; left: 0; top: 0; }
-.fakepage .slot pre { font-size: 5px; line-height: 5px; color: #eee; }
+/* ascii in the header: the pre is the bleed frame at 2x (3px cells, 6px chars); scale it to 1:1 and
+   shift by the bleed margin so its mark part covers the slot, like the canvas does */
+.fakepage .slot pre { position: absolute; left: 0; top: 0; transform: translate(-8.333%, -8.333%) scale(0.5); transform-origin: 0 0; }
+.fakepage .slot pre { color: #eee; }
 .fakepage .body { padding: 40px 48px; font-family: system-ui, sans-serif; color: #9a9a9a; max-width: 720px; }
 .fakepage h2 { font: 700 34px system-ui, sans-serif; text-transform: none; letter-spacing: 0; margin: 0 0 10px; color: #8a8a8a; }
 .fakepage p { font-size: 16px; margin: 0 0 18px; }
