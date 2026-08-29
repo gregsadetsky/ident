@@ -24,3 +24,15 @@ describe("moves", () => {
     expect(d.dx).toBeCloseTo(0.3); expect(d.zx).toBeCloseTo(1);
   });
 });
+
+import { state, hoverAvailable } from "../../src/core/state";
+describe("hoverAvailable", () => {
+  it("false for readme/terminal and for ascii views, true otherwise", () => {
+    const s = { ...state, view: { ...state.view } };
+    s.dest = "header"; s.view.header = "px"; expect(hoverAvailable(s)).toBe(true);
+    s.view.header = "ascii"; expect(hoverAvailable(s)).toBe(false);
+    s.dest = "404"; s.view["404"] = "px"; expect(hoverAvailable(s)).toBe(true);
+    s.dest = "readme"; s.view.readme = "px"; expect(hoverAvailable(s)).toBe(false);
+    s.dest = "terminal"; expect(hoverAvailable(s)).toBe(false);
+  });
+});

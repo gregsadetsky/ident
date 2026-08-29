@@ -1,7 +1,7 @@
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 import { Muxer, ArrayBufferTarget } from "mp4-muxer";
 import { state } from "../core/state";
-import { renderSequence } from "../engine";
+import { renderSequence, frameSize } from "../engine";
 
 export const CLIP = { seconds: 2.5, fps: 30 };
 
@@ -34,7 +34,7 @@ export function encodeGif(): Blob {
 // mp4: h.264 via webcodecs, muxed in the browser. no alpha (h.264 has none): bg composited, transparent -> black.
 export async function encodeMp4(): Promise<Blob> {
   if (typeof VideoEncoder === "undefined") throw new Error("this browser has no WebCodecs (VideoEncoder)");
-  const w = state.mark.w & ~1, h = state.mark.h & ~1; // h.264 wants even dims
+  const fs = frameSize(); const w = fs.w & ~1, h = fs.h & ~1; // h.264 wants even dims
   const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: w, height: h }, fastStart: "in-memory" });
   const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: (e) => { throw e; } });
   enc.configure({ codec: "avc1.42001f", width: w, height: h, bitrate: 4_000_000, framerate: CLIP.fps });

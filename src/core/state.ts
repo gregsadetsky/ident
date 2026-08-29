@@ -41,3 +41,10 @@ type Listener = (s: State) => void;
 const listeners = new Set<Listener>();
 export function subscribe(fn: Listener) { listeners.add(fn); return () => listeners.delete(fn); }
 export function update(fn: (s: State) => void) { fn(state); listeners.forEach((l) => l(state)); }
+
+// destinations with no hover (a readme, a shell) loop the enter move instead;
+// ascii views have no hover either. the rail greys "on hover" out when this is false.
+export const LOOP_DESTS: Destination[] = ["readme", "terminal"];
+export function hoverAvailable(s: State): boolean {
+  return !LOOP_DESTS.includes(s.dest) && s.view[s.dest] !== "ascii";
+}

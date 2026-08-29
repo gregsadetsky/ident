@@ -1,4 +1,4 @@
-import { state, update, subscribe, FONTS, type RenderMode } from "../core/state";
+import { state, update, subscribe, hoverAvailable, FONTS, type RenderMode } from "../core/state";
 import { ENTER_MOVES, REACT_MOVES } from "../core/presets";
 import { triggerEnter, triggerReact } from "../engine";
 
@@ -30,7 +30,7 @@ export function mountRail(root: HTMLElement) {
       <div class="row">
         <label>fg <input id="fg" type="color"></label>
         <label>bg <input id="bg" type="color"></label>
-        <label><input id="bgt" type="checkbox"> transparent</label>
+        <label title="transparent background"><input id="bgt" type="checkbox"> no bg</label>
       </div>
       <div class="row">
         <label>w <input id="w" type="number" min="32" max="2048" step="16"></label>
@@ -40,7 +40,7 @@ export function mountRail(root: HTMLElement) {
     <section>
       <div class="sub">enter</div>
       <div id="enter"></div>
-      <div class="sub">on hover</div>
+      <div class="sub" id="hoverLabel">on hover</div>
       <div id="react"></div>
       <details>
         <summary>fine tune</summary>
@@ -69,7 +69,8 @@ export function mountRail(root: HTMLElement) {
   const fg = $<HTMLInputElement>("fg"), bg = $<HTMLInputElement>("bg"), bgt = $<HTMLInputElement>("bgt");
   fg.value = state.mark.fg; bg.value = "#000000"; bgt.checked = state.mark.bg === "transparent";
   fg.oninput = () => update((s) => { s.mark.fg = fg.value; });
-  const setBg = () => update((s) => { s.mark.bg = bgt.checked ? "transparent" : bg.value; });
+  const setBg = () => { update((s) => { s.mark.bg = bgt.checked ? "transparent" : bg.value; }); bg.classList.toggle("off", bgt.checked); };
+  bg.classList.toggle("off", bgt.checked);
   bg.oninput = () => { bgt.checked = false; setBg(); }; bgt.onchange = setBg;
 
   const w = $<HTMLInputElement>("w"), h = $<HTMLInputElement>("h");
@@ -79,7 +80,16 @@ export function mountRail(root: HTMLElement) {
   subscribe((s) => { if (document.activeElement !== w) w.value = String(s.mark.w); if (document.activeElement !== h) h.value = String(s.mark.h); });
 
   $("enter").replaceWith(chips(ENTER_MOVES, () => state.moves.enter, (v) => { state.moves.enter = v; }, triggerEnter));
-  $("react").replaceWith(chips(REACT_MOVES, () => state.moves.react, (v) => { state.moves.react = v; }, triggerReact));
+  const react = chips(REACT_MOVES, () => state.moves.react, (v) => { state.moves.react = v; }, triggerReact);
+  $("react").replaceWith(react);
+  const hoverLabel = $("hoverLabel");
+  const syncHover = (s = state) => {
+    const ok = hoverAvailable(s);
+    react.classList.toggle("off", !ok); hoverLabel.classList.toggle("off", !ok);
+    react.querySelectorAll<HTMLButtonElement>("button").forEach((b) => (b.disabled = !ok));
+    hoverLabel.title = ok ? "" : "no hover in this destination";
+  };
+  subscribe(syncHover); syncHover();
 
   const speed = $<HTMLInputElement>("speed"), bounce = $<HTMLInputElement>("bounce");
   speed.value = String(state.tuning.speed); bounce.value = String(state.tuning.bounce);

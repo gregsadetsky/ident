@@ -25,7 +25,8 @@ void main(){
   q -= uD;
   vec4 c = at(q);
   vec4 prev = texture2D(uPrev, vUv);
-  gl_FragColor = max(c, prev*uDecay);
+  // 8-bit storage rounds 1/255*decay back up to 1/255: without this bias trails never fully die
+  gl_FragColor = max(c, max(prev*uDecay - 1.5/255.0, 0.0));
 }`;
 const COPY = `precision highp float; varying vec2 vUv; uniform sampler2D uTex; void main(){ gl_FragColor = texture2D(uTex, vUv); }`;
 

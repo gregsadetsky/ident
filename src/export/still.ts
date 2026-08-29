@@ -1,10 +1,9 @@
-import { state } from "../core/state";
-import { renderStill } from "../engine";
+import { renderStill, frameSize } from "../engine";
 
 // single frame, mark at rest, bg composited (or transparent). for places that can't animate.
 export function downloadStill(name = "ident.png") {
   const c = document.createElement("canvas");
-  c.width = state.mark.w; c.height = state.mark.h;
+  const fs = frameSize(); c.width = fs.w; c.height = fs.h;
   renderStill(c);
   c.toBlob((blob) => {
     if (!blob) return;

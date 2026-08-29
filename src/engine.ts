@@ -8,34 +8,57 @@ import { Warp } from "./gl/warp";
 // "artwork on the light table". every frame the warp pass re-scans it with the current
 // deflection chord (sum of all live moves' envelopes). the warp canvas is the one frame
 // every destination (px + ascii) reads from.
-// rendered at RES x the logical mark size so retina displays and upscaled slots stay crisp
+// rendered at RES x the logical size so retina displays and upscaled slots stay crisp.
+// BLEED: the frame is this much larger than the mark on each axis, mark centred, so effects
+// that push the mark out of its own rect still show. logical frame size = mark * BLEED.
 export const RES = 2;
+export const BLEED = 1.5;
+export function frameSize() { return { w: Math.round(state.mark.w * BLEED), h: Math.round(state.mark.h * BLEED) }; }
 const markCanvas = document.createElement("canvas");
+// two scans of the same artwork: one with every live move (hover included), one with the
+// enter move only, for destinations that have no hover (readme, terminal, ascii views).
+// separate instances because phosphor persistence is per-scan state.
 const warp = new Warp();
-let triggered: { move: string; at: number }[] = [];
+const warpNoHover = new Warp();
+type Kind = "enter" | "react";
+let triggered: { move: string; at: number; kind: Kind }[] = [];
 const t0 = performance.now();
 
 export const frame = warp.canvas;
-export function trigger(move: string) { triggered.push({ move, at: performance.now() }); }
-export function triggerEnter() { triggered = []; trigger(state.moves.enter); }
-export function triggerReact() { trigger(state.moves.react); }
+export const frameNoHover = warpNoHover.canvas;
+export function trigger(move: string, kind: Kind = "react") { triggered.push({ move, at: performance.now(), kind }); }
+export function triggerEnter() { triggered = []; trigger(state.moves.enter, "enter"); }
+export function triggerReact() { trigger(state.moves.react, "react"); }
 
-function rebuild() { renderMark(state.mark, markCanvas, RES); warp.setSource(markCanvas); }
+function rebuild() { renderMark(state.mark, markCanvas, RES, BLEED); warp.setSource(markCanvas); warpNoHover.setSource(markCanvas); }
 subscribe(rebuild); rebuild();
 
-export function currentDeflect(now = performance.now()): Deflect {
+export function currentDeflect(now = performance.now(), withReact = true): Deflect {
   triggered = triggered.filter((tr) => (now - tr.at) / 1000 < 4);
-  return chord(triggered.map((tr) => {
+  return chord(triggered.filter((tr) => withReact || tr.kind === "enter").map((tr) => {
     const t = (now - tr.at) / 1000;
     return (MOVES[tr.move] ?? MOVES.none)(envelope(t, state.tuning.speed, state.tuning.bounce), t);
   }));
 }
 
-export function drawFrame(target: HTMLCanvasElement) {
+// draws src (default: the full frame) into target, bg composited. crop = source rect in frame pixels.
+export function drawFrame(target: HTMLCanvasElement, src: HTMLCanvasElement = frame, crop?: { x: number; y: number; w: number; h: number }) {
   const ctx = target.getContext("2d")!;
   ctx.clearRect(0, 0, target.width, target.height);
-  if (state.mark.bg !== "transparent") { ctx.fillStyle = state.mark.bg; ctx.fillRect(0, 0, target.width, target.height); }
-  ctx.drawImage(frame, 0, 0, target.width, target.height);
+  if (state.mark.bg !== "transparent") {
+    // bg belongs to the mark's own rect, never the bleed around it
+    ctx.fillStyle = state.mark.bg;
+    if (crop) ctx.fillRect(0, 0, target.width, target.height);
+    else { const r = markRect(), sx = target.width / src.width, sy = target.height / src.height; ctx.fillRect(r.x * sx, r.y * sy, r.w * sx, r.h * sy); }
+  }
+  if (crop) ctx.drawImage(src, crop.x, crop.y, crop.w, crop.h, 0, 0, target.width, target.height);
+  else ctx.drawImage(src, 0, 0, target.width, target.height);
+}
+
+// the mark's own rect inside the bleed frame, in frame pixels
+export function markRect() {
+  const m = (BLEED - 1) / 2;
+  return { x: Math.round(state.mark.w * m * RES), y: Math.round(state.mark.h * m * RES), w: state.mark.w * RES, h: state.mark.h * RES };
 }
 
 // renders one frame at rest with no persistence into target (the live loop overwrites it next tick)
@@ -48,7 +71,7 @@ export function renderStill(target: HTMLCanvasElement) {
 // accumulated frame by frame. same state -> same frames. the live loop resumes after.
 export function renderSequence(seconds: number, fps: number, each: (frame: HTMLCanvasElement, i: number) => void) {
   const tmp = document.createElement("canvas");
-  tmp.width = state.mark.w; tmp.height = state.mark.h;
+  const fs = frameSize(); tmp.width = fs.w; tmp.height = fs.h;
   warp.render(REST, 0, 0); // clear persistence
   const n = Math.round(seconds * fps);
   for (let i = 0; i < n; i++) {
@@ -64,7 +87,8 @@ const frames = new Set<() => void>();
 export function onFrame(fn: () => void) { frames.add(fn); return () => frames.delete(fn); }
 function loop() {
   const now = performance.now();
-  warp.render(currentDeflect(now), (now - t0) / 1000, state.tuning.persist);
+  warp.render(currentDeflect(now, true), (now - t0) / 1000, state.tuning.persist);
+  warpNoHover.render(currentDeflect(now, false), (now - t0) / 1000, state.tuning.persist);
   frames.forEach((f) => f());
   requestAnimationFrame(loop);
 }

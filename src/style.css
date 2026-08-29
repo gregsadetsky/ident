@@ -14,6 +14,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 }
 #rail input[type=number] { width: 70px; }
 #rail .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#rail input[type=color].off { opacity: .3; }
 #rail label { display: inline-flex; gap: 5px; align-items: center; }
 #rail details label { display: flex; gap: 8px; margin-top: 6px; }
 #rail details label input { flex: 1; }
@@ -26,12 +27,14 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .chip { font: inherit; font-size: 11px; border: 1.5px solid #444; border-radius: 4px; padding: 2px 8px; background: #fff; color: #333; cursor: pointer; }
 .chip.on { background: var(--ink); color: #fff; }
+.chips.off .chip { opacity: .35; cursor: not-allowed; }
+.sub.off { opacity: .35; }
 
 #stage { display: flex; flex-direction: column; min-width: 0; }
 .tabs { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tab { border: 1.5px solid #444; border-radius: 6px; background: #14141c; padding: 0; width: 160px; height: 84px; cursor: pointer; display: flex; flex-direction: column; overflow: hidden; color: #aaa; font: inherit; font-size: 10px; flex: none; }
 .tab canvas, .tab pre { width: 100%; height: 60px; margin: 0; display: block; object-fit: contain; }
-.tab pre { font: 4px/4px ui-monospace, monospace; color: #5dd77a; background: #0a0f0a; overflow: hidden; padding: 4px; box-sizing: border-box; white-space: pre; }
+.tab pre { font: 5px/5px ui-monospace, monospace; color: #5dd77a; background: #0a0f0a; overflow: hidden; padding: 0; box-sizing: border-box; white-space: pre; display: flex; align-items: center; justify-content: center; }
 .tab span { padding: 4px; background: #fff; color: #333; text-align: left; }
 .tab.on { outline: 3px solid var(--accent); } .tab.on span { font-weight: 700; }
 
@@ -45,6 +48,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 
 .context { flex: 1; padding: 16px; overflow: auto; }
 .slot { display: inline-block; }
+/* bleed: the frame is 1.5x the mark; where a slot is the mark rect, the canvas overflows it by 25% each side */
 .slot canvas { max-width: 100%; height: auto; display: block; }
 .slot pre { margin: 0; white-space: pre; font: 10px/10px ui-monospace, monospace; }
 
@@ -54,7 +58,8 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .site iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .fakepage { position: absolute; inset: 0; pointer-events: none; }
 .fakepage .topbar { display: flex; align-items: center; gap: 24px; padding: 8px 16px; background: #14141c; color: #ccc; pointer-events: auto; }
-.fakepage .slot canvas { height: 56px; width: auto; }
+.fakepage .slot { height: 56px; display: inline-flex; align-items: center; }
+.fakepage .slot canvas { height: 84px; width: auto; margin: -14px 0; }
 .fakepage .slot pre { font-size: 5px; line-height: 5px; color: #eee; }
 .fakepage .body { padding: 40px 48px; font-family: system-ui, sans-serif; color: #9a9a9a; max-width: 720px; }
 .fakepage h2 { font: 700 34px system-ui, sans-serif; text-transform: none; letter-spacing: 0; margin: 0 0 10px; color: #8a8a8a; }
@@ -66,12 +71,13 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 /* 404 */
 .page404 { background: #000; color: #5dd77a; border-radius: 6px; padding: 40px; min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
 .page404 a { color: #5dd77a; }
+.page404 .slot canvas { width: var(--fw); }
 
 /* readme: real github screenshot, slot pinned in the empty readme band (159,678)-(1919,1631) of 2886x1966 */
 .gh { position: relative; border: 1.5px solid #444; border-radius: 6px; overflow: hidden; background: #fff; }
 .gh img { display: block; width: 100%; height: auto; }
 .gh .slot { position: absolute; left: 5.51%; top: 34.49%; width: 60.98%; height: 48.47%; display: flex; align-items: center; justify-content: center; }
-.gh .slot canvas { width: 100%; height: 100%; object-fit: contain; max-width: none; }
+.gh .slot canvas { position: absolute; width: 150%; height: 150%; left: -25%; top: -25%; object-fit: contain; max-width: none; }
 .gh .slot pre { color: #111; font-size: 8px; line-height: 8px; }
 
 /* terminal */
@@ -86,7 +92,8 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .site.framed .links, .site.framed .body { display: none; }
 .site.framed .topbar { padding: 0; }
 .slot.floating { position: absolute; cursor: move; outline: 1px dashed rgba(255,77,0,.6); outline-offset: 2px; user-select: none; touch-action: none; }
-.slot.floating canvas { width: 100% !important; height: 100% !important; }
+.slot.floating canvas { position: absolute; width: 150% !important; height: 150% !important; max-width: none; left: -25%; top: -25%; margin: 0 !important; }
+.slot.floating .resize { z-index: 1; }
 .slot.floating .resize { position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--accent); border: 1.5px solid var(--ink); cursor: nwse-resize; }
 
 /* mobile: the editor stays underneath, a full-screen note on top */

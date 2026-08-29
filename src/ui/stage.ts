@@ -1,5 +1,5 @@
-import { state, update, subscribe, type Destination } from "../core/state";
-import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
+import { state, update, subscribe, hoverAvailable, LOOP_DESTS, type Destination } from "../core/state";
+import { drawFrame, frame, frameNoHover, frameSize, markRect, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii, asciiGrid } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
@@ -8,14 +8,13 @@ import { normalizeSiteUrl } from "../core/url";
 
 // exports: label + action (undefined = not built yet)
 interface Export { label: string; run?: () => void }
-interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean; loop?: boolean }
-// loop: destinations with no hover (a readme, a shell) replay the enter move on a timer instead
+interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean }
 const DESTS: Dest[] = [
   { id: "header", label: "site header", exports: [{ label: "get embed" }] },
   { id: "404", label: "404", exports: [{ label: "get .html" }] },
   { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") },
-    { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }], loop: true },
-  { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true, loop: true },
+    { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }] },
+  { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true },
 ];
 
 export function mountStage(root: HTMLElement) {
@@ -75,12 +74,13 @@ export function mountStage(root: HTMLElement) {
     if (view === "px") {
       const c = document.createElement("canvas");
       c.width = frame.width; c.height = frame.height;
-      c.style.width = state.mark.w + "px"; // css size = logical size; pixels are RES x that
+      slot.style.setProperty("--fw", frameSize().w + "px"); // logical frame width for slots that show it 1:1
       slot.appendChild(c); ctxEl.canvas = c;
     } else {
       const p = document.createElement("pre"); slot.appendChild(p); ctxEl.pre = p;
+      p.style.width = asciiGrid(frameSize().w, frameSize().h).cols + "ch"; // trailing spaces are stripped; keep the block centred
     }
-    slot.onmouseenter = d.loop ? null : triggerReact;
+    slot.onmouseenter = () => { if (hoverAvailable(state)) triggerReact(); };
     const url = context.querySelector<HTMLInputElement>("#siteurl");
     if (url) {
       url.value = state.siteUrl;
@@ -92,28 +92,48 @@ export function mountStage(root: HTMLElement) {
     }
   }
   subscribe(build); build();
-  setInterval(() => { if (DESTS.find((x) => x.id === state.dest)?.loop) triggerEnter(); }, 3000);
+  setInterval(() => { if (LOOP_DESTS.includes(state.dest)) triggerEnter(); }, 3000);
 
+  // which scan a destination shows: hover-capable ones get the full chord, others enter-only
+  const frameFor = (id: Destination) => hoverAvailable({ ...state, dest: id }) ? frame : frameNoHover;
+  const thumbCrop = document.createElement("canvas");
   onFrame(() => {
+    const stageFrame = frameFor(state.dest);
     if (ctxEl.canvas) {
-      if (ctxEl.canvas.width !== frame.width || ctxEl.canvas.height !== frame.height) { ctxEl.canvas.width = frame.width; ctxEl.canvas.height = frame.height; ctxEl.canvas.style.width = state.mark.w + "px"; }
-      drawFrame(ctxEl.canvas);
+      if (ctxEl.canvas.width !== frame.width || ctxEl.canvas.height !== frame.height) { ctxEl.canvas.width = frame.width; ctxEl.canvas.height = frame.height; ctxEl.canvas.parentElement!.style.setProperty("--fw", frameSize().w + "px"); }
+      drawFrame(ctxEl.canvas, stageFrame);
     }
-    if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame, undefined, asciiGrid(state.mark.w, state.mark.h));
-    let asciiSmall: string | null = null;
+    if (ctxEl.pre) {
+      const g = asciiGrid(frameSize().w, frameSize().h);
+      ctxEl.pre.textContent = canvasToAscii(stageFrame, undefined, g);
+      const w = g.cols + "ch"; if (ctxEl.pre.style.width !== w) ctxEl.pre.style.width = w;
+    }
+    // thumbnails: cropped to the mark rect (the bleed would make them tiny)
+    const rect = markRect();
+    const asciiSmall = new Map<HTMLCanvasElement, string>();
     for (const d of DESTS) {
       const t = thumbs.get(d.id)!;
       const view = d.asciiLocked ? "ascii" : state.view[d.id];
+      const src = frameFor(d.id);
       t.px.hidden = view !== "px"; t.asc.hidden = view !== "ascii";
-      if (view === "px") drawFrame(t.px);
-      else t.asc.textContent = asciiSmall ??= canvasToAscii(frame, 28);
+      if (view === "px") drawFrame(t.px, src, rect);
+      else {
+        if (!asciiSmall.has(src)) {
+          thumbCrop.width = state.mark.w; thumbCrop.height = state.mark.h;
+          const c2 = thumbCrop.getContext("2d")!;
+          c2.clearRect(0, 0, thumbCrop.width, thumbCrop.height);
+          c2.drawImage(src, rect.x, rect.y, rect.w, rect.h, 0, 0, thumbCrop.width, thumbCrop.height);
+          asciiSmall.set(src, canvasToAscii(thumbCrop, 48));
+        }
+        t.asc.textContent = asciiSmall.get(src)!;
+      }
     }
   });
 }
 
 const CONTEXT: Record<Destination, (view: string) => string> = {
   header: () => `
-    <div class="urlbar"><input id="siteurl" type="text" placeholder="https://your-site.com"></div>
+    <div class="urlbar"><input id="siteurl" type="text" placeholder="https://your-site.com (if iframe-able)"></div>
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
