@@ -1,4 +1,4 @@
-import { state, update, subscribe, hoverAvailable, FONTS, type RenderMode } from "../core/state";
+import { state, update, subscribe, hoverAvailable, FONTS, type RenderMode, type Shape } from "../core/state";
 import { ENTER_MOVES, REACT_MOVES } from "../core/presets";
 import { triggerEnter, triggerReact } from "../engine";
 
@@ -27,6 +27,7 @@ export function mountRail(root: HTMLElement) {
       <input id="text" type="text" maxlength="24" spellcheck="false">
       <select id="font"></select>
       <div id="mode"></div>
+      <div id="shape"></div>
       <div class="row">
         <label>fg <input id="fg" type="color"></label>
         <label>bg <input id="bg" type="color"></label>
@@ -65,6 +66,7 @@ export function mountRail(root: HTMLElement) {
   };
 
   $("mode").replaceWith(chips(["fill", "outline", "3d"], () => state.mark.mode, (v) => { state.mark.mode = v as RenderMode; }));
+  $("shape").replaceWith(chips(["bare", "box", "pill"], () => state.mark.shape, (v) => { state.mark.shape = v as Shape; }));
 
   const fg = $<HTMLInputElement>("fg"), bg = $<HTMLInputElement>("bg"), bgt = $<HTMLInputElement>("bgt");
   fg.value = state.mark.fg; bg.value = "#000000"; bgt.checked = state.mark.bg === "transparent";

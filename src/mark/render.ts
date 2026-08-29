@@ -21,12 +21,24 @@ export function renderMark(mark: Mark, canvas: HTMLCanvasElement, scale = 1, ble
   }
 
   const text = mark.text || " ";
-  let size = mark.h * 0.7;
+  const boxed = mark.shape !== "bare";
+  const line = Math.max(2, Math.min(mark.w, mark.h) * 0.04);
+  // inside a frame the text gets less room; the frame itself sits just inside the mark
+  const fitW = mark.w * (boxed ? 0.78 : 0.9), fitH = mark.h * (boxed ? 0.55 : 0.7);
+  let size = fitH;
   ctx.font = `${size}px "${mark.font}"`;
   const tw = ctx.measureText(text).width;
-  if (tw > mark.w * 0.9) { size *= (mark.w * 0.9) / tw; ctx.font = `${size}px "${mark.font}"`; }
+  if (tw > fitW) { size *= fitW / tw; ctx.font = `${size}px "${mark.font}"`; }
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   const cx = mark.w / 2, cy = mark.h / 2;
+
+  if (boxed) {
+    const inset = line * 1.5, x = inset, y = inset, w = mark.w - inset * 2, h = mark.h - inset * 2;
+    ctx.lineWidth = line; ctx.strokeStyle = mark.fg;
+    ctx.beginPath();
+    if (mark.shape === "pill") ctx.roundRect(x, y, w, h, h / 2); else ctx.rect(x, y, w, h);
+    ctx.stroke();
+  }
 
   if (mark.mode === "3d") {
     const depth = Math.max(2, size * 0.06);

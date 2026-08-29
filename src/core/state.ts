@@ -1,4 +1,5 @@
 export type RenderMode = "fill" | "outline" | "3d";
+export type Shape = "bare" | "box" | "pill"; // frame drawn around the text (radio station id style)
 export type Destination = "header" | "404" | "readme" | "terminal";
 export type View = "px" | "ascii";
 
@@ -6,6 +7,7 @@ export interface Mark {
   text: string;
   font: string;
   mode: RenderMode;
+  shape: Shape;
   fg: string;
   bg: string; // css color, may be "transparent"
   image: HTMLImageElement | null; // dropped logo overrides text
@@ -28,7 +30,7 @@ export const FONTS = [
 ];
 
 export const state: State = {
-  mark: { text: "Acme", font: "Archivo Black", mode: "fill", fg: "#ff4d00", bg: "transparent", image: null, w: 512, h: 192 },
+  mark: { text: "Acme", font: "Archivo Black", mode: "fill", shape: "bare", fg: "#ff4d00", bg: "transparent", image: null, w: 512, h: 192 },
   moves: { enter: "punch", react: "wobble" },
   tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
   dest: "header",
