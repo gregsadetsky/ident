@@ -1,0 +1,17 @@
+:root {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  color: #eee;
+  background: #111;
+}
+body { margin: 0; }
+main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+textarea, pre {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  color: inherit;
+  background: #000;
+  border: 1px solid #333;
+  padding: 0.75rem;
+}
+pre { white-space: pre; overflow-x: auto; min-height: 6rem; }
