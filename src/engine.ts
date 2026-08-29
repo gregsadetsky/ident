@@ -65,7 +65,7 @@ export function markRect() {
 // renders one frame at rest with no persistence into target (the live loop overwrites it next tick)
 export function renderStill(target: HTMLCanvasElement) {
   warp.clear();
-  warp.render(REST, 0, 0);
+  warp.render(REST, 0, 0, state.tuning);
   drawFrame(target);
 }
 
@@ -79,7 +79,7 @@ export function renderSequence(seconds: number, fps: number, each: (frame: HTMLC
   for (let i = 0; i < n; i++) {
     const t = i / fps;
     const d = chord([(MOVES[state.moves.enter] ?? MOVES.none)(envelope(t, state.tuning.speed, state.tuning.bounce), t)]);
-    warp.render(d, t, state.tuning.persist);
+    warp.render(d, t, state.tuning.persist, state.tuning);
     drawFrame(tmp);
     each(tmp, i);
   }
@@ -89,8 +89,8 @@ const frames = new Set<() => void>();
 export function onFrame(fn: () => void) { frames.add(fn); return () => frames.delete(fn); }
 function loop() {
   const now = performance.now();
-  warp.render(currentDeflect(now, true), (now - t0) / 1000, state.tuning.persist);
-  warpNoHover.render(currentDeflect(now, false), (now - t0) / 1000, state.tuning.persist);
+  warp.render(currentDeflect(now, true), (now - t0) / 1000, state.tuning.persist, state.tuning);
+  warpNoHover.render(currentDeflect(now, false), (now - t0) / 1000, state.tuning.persist, state.tuning);
   frames.forEach((f) => f());
   requestAnimationFrame(loop);
 }

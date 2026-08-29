@@ -51,6 +51,9 @@ export function mountRail(root: HTMLElement) {
         <label>speed <input id="speed" type="range" min="0.3" max="3" step="0.05"></label>
         <label>bounce <input id="bounce" type="range" min="0" max="1" step="0.05"></label>
         <label>persist <input id="persist" type="range" min="0" max="0.97" step="0.01"></label>
+        <label>glow <input id="glow" type="range" min="0" max="1" step="0.05"></label>
+        <label>scanlines <input id="scan" type="range" min="0" max="1" step="0.05"></label>
+        <label>curve <input id="curve" type="range" min="0" max="1" step="0.05"></label>
       </details>
     </section>
   `);
@@ -105,6 +108,10 @@ export function mountRail(root: HTMLElement) {
   const persist = $<HTMLInputElement>("persist"); persist.value = String(state.tuning.persist);
   persist.oninput = () => update((s) => { s.tuning.persist = +persist.value; });
   persist.onchange = triggerEnter;
+  for (const k of ["glow", "scan", "curve"] as const) {
+    const el = $<HTMLInputElement>(k); el.value = String(state.tuning[k]);
+    el.oninput = () => update((s) => { s.tuning[k] = +el.value; });
+  }
 
   // drop anywhere on the page
   // upload ui is currently hidden (kept: drag-drop anywhere still works, the drop box isn't shown)

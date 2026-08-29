@@ -19,7 +19,7 @@ export interface Mark {
 export interface State {
   mark: Mark;
   moves: { enter: string; react: string };
-  tuning: { speed: number; bounce: number; persist: number };
+  tuning: { speed: number; bounce: number; persist: number; glow: number; scan: number; curve: number };
   dest: Destination;
   view: Record<Destination, View>;
   siteUrl: string;
@@ -33,7 +33,7 @@ export const FONTS = [
 export const state: State = {
   mark: { text: "Acme", font: "Archivo Black", mode: "fill", shape: "bare", fg: "#ff4d00", bg: "transparent", image: null, size: 40, w: 0, h: 0 },
   moves: { enter: "punch", react: "wobble" },
-  tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
+  tuning: { speed: 1, bounce: 0.5, persist: 0.6, glow: 0.4, scan: 0.25, curve: 0 },
   dest: "header",
   view: { header: "px", "404": "ascii", readme: "px", terminal: "ascii" },
   siteUrl: "",

@@ -1,5 +1,8 @@
 import type { Deflect } from "../core/presets";
 
+export interface Screen { glow: number; scan: number; curve: number }
+export const NO_SCREEN: Screen = { glow: 0, scan: 0, curve: 0 };
+
 // scan-deflection pass: for each output pixel, bend the sampling coordinate
 // through the deflection chain (sweep lag -> keystone -> zoom/spin -> wobble/flag),
 // then read the mark texture there. persistence = max(new, prev*decay) via ping-pong.
@@ -28,7 +31,27 @@ void main(){
   // 8-bit storage rounds 1/255*decay back up to 1/255: without this bias trails never fully die
   gl_FragColor = max(c, max(prev*uDecay - 1.5/255.0, 0.0));
 }`;
-const COPY = `precision highp float; varying vec2 vUv; uniform sampler2D uTex; void main(){ gl_FragColor = texture2D(uTex, vUv); }`;
+// screen pass: the monitor the rescan camera looks at. barrel curvature bends the uv, glow is a
+// cheap 8-tap bloom, scanlines darken alternate rows (colour only, so ascii coverage stays clean).
+// everything is premultiplied so rgb <= a holds.
+const SCREEN = `precision highp float; varying vec2 vUv; uniform sampler2D uTex; uniform vec2 uPx; uniform float uGlow, uScan, uCurve;
+void main(){
+  vec2 c = vUv - 0.5; float r2 = dot(c, c);
+  vec2 uv = vUv + c * r2 * uCurve * 0.8;
+  if (uv.x < 0. || uv.x > 1. || uv.y < 0. || uv.y > 1.) { gl_FragColor = vec4(0.); return; }
+  vec4 col = texture2D(uTex, uv);
+  if (uGlow > 0.001) {
+    vec2 r = uPx * 3.0; vec4 g = vec4(0.);
+    g += texture2D(uTex, uv + vec2( r.x, 0.)); g += texture2D(uTex, uv + vec2(-r.x, 0.));
+    g += texture2D(uTex, uv + vec2(0.,  r.y)); g += texture2D(uTex, uv + vec2(0., -r.y));
+    g += texture2D(uTex, uv + vec2( r.x,  r.y)); g += texture2D(uTex, uv + vec2(-r.x,  r.y));
+    g += texture2D(uTex, uv + vec2( r.x, -r.y)); g += texture2D(uTex, uv + vec2(-r.x, -r.y));
+    col = max(col, g * 0.125 * uGlow * 1.6); // max, not add: a halo in the mark's own hue
+  }
+  float sl = 1.0 - uScan * 0.5 * (0.5 + 0.5 * sin(gl_FragCoord.y * 3.14159 / 2.0));
+  col.rgb *= sl;
+  gl_FragColor = col;
+}`;
 
 export class Warp {
   readonly canvas = document.createElement("canvas");
@@ -41,7 +64,7 @@ export class Warp {
   constructor() {
     const gl = this.canvas.getContext("webgl", { premultipliedAlpha: true, preserveDrawingBuffer: true, alpha: true })!;
     this.gl = gl;
-    this.prog = program(gl, VS, FS); this.copy = program(gl, VS, COPY);
+    this.prog = program(gl, VS, FS); this.copy = program(gl, VS, SCREEN);
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     for (const p of [this.prog, this.copy]) { const a = gl.getAttribLocation(p, "aPos"); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0); }
@@ -78,7 +101,7 @@ export class Warp {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
-  render(d: Deflect, time: number, decay: number) {
+  render(d: Deflect, time: number, decay: number, screen: Screen = NO_SCREEN) {
     const gl = this.gl, u = this.u;
     const dst = this.ping, src = 1 - this.ping; this.ping = src;
     gl.viewport(0, 0, this.w, this.h);
@@ -98,6 +121,10 @@ export class Warp {
     gl.useProgram(this.copy);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.fboTex[dst]);
     gl.uniform1i(gl.getUniformLocation(this.copy, "uTex"), 0);
+    gl.uniform2f(gl.getUniformLocation(this.copy, "uPx"), 1 / this.w, 1 / this.h);
+    gl.uniform1f(gl.getUniformLocation(this.copy, "uGlow"), screen.glow);
+    gl.uniform1f(gl.getUniformLocation(this.copy, "uScan"), screen.scan);
+    gl.uniform1f(gl.getUniformLocation(this.copy, "uCurve"), screen.curve);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 }

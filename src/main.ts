@@ -22,6 +22,6 @@ for (const el of document.querySelectorAll<HTMLElement>(".logo")) {
   mount(el, {
     mark: { text: "IDENT", font: "Archivo Black", mode: "fill", shape: "bare", fg: "#1a1a1a", bg: "transparent", size: 22, w: 0, h: 0 },
     moves: { enter: "punch", react: "wobble" },
-    tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
+    tuning: { speed: 1, bounce: 0.5, persist: 0.6, glow: 0.4, scan: 0.25, curve: 0 },
   });
 }

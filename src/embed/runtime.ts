@@ -12,7 +12,7 @@ import type { Mark } from "../core/state";
 export interface IdentConfig {
   mark: Omit<Mark, "image"> & { image?: string | null }; // image = data url
   moves: { enter: string; react: string };
-  tuning: { speed: number; bounce: number; persist: number };
+  tuning: { speed: number; bounce: number; persist: number; glow?: number; scan?: number; curve?: number };
   ascii?: boolean;   // render as text in a <pre>: shape only, colored by `color` / `background`
   loop?: number;     // ms: replay the enter move on a timer (for places with no hover)
   color?: string;    // ascii text color (default: inherit)
@@ -81,7 +81,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
     const now = performance.now();
     triggered = triggered.filter((tr) => (now - tr.at) / 1000 < 4);
     const d = chord(triggered.map((tr) => { const t = (now - tr.at) / 1000; return (MOVES[tr.move] ?? MOVES.none)(envelope(t, cfg.tuning.speed, cfg.tuning.bounce), t); }));
-    warp.render(d, (now - t0) / 1000, cfg.tuning.persist);
+    warp.render(d, (now - t0) / 1000, cfg.tuning.persist, { glow: cfg.tuning.glow ?? 0, scan: cfg.tuning.scan ?? 0, curve: cfg.tuning.curve ?? 0 });
     if (pre) {
       const g = asciiGrid(fs.w, fs.h);
       const w = g.cols + "ch"; if (pre.style.width !== w) pre.style.width = w;
