@@ -27,8 +27,9 @@ export function asciiRows(width: number, height: number, cols: number): number {
   return Math.max(1, Math.round((height / width) * cols * 0.5));
 }
 
-export function canvasToAscii(src: HTMLCanvasElement, cols?: number): string {
-  const g = cols ? { cols, rows: asciiRows(src.width, src.height, cols) } : asciiGrid(src.width, src.height);
+// grid: explicit character grid; cols: fixed columns (thumbnails); neither: from the canvas pixel size
+export function canvasToAscii(src: HTMLCanvasElement, cols?: number, grid?: { cols: number; rows: number }): string {
+  const g = grid ?? (cols ? { cols, rows: asciiRows(src.width, src.height, cols) } : asciiGrid(src.width, src.height));
   const tmp = document.createElement("canvas");
   tmp.width = g.cols; tmp.height = g.rows;
   const ctx = tmp.getContext("2d")!;

@@ -8,6 +8,8 @@ import { Warp } from "./gl/warp";
 // "artwork on the light table". every frame the warp pass re-scans it with the current
 // deflection chord (sum of all live moves' envelopes). the warp canvas is the one frame
 // every destination (px + ascii) reads from.
+// rendered at RES x the logical mark size so retina displays and upscaled slots stay crisp
+export const RES = 2;
 const markCanvas = document.createElement("canvas");
 const warp = new Warp();
 let triggered: { move: string; at: number }[] = [];
@@ -18,7 +20,7 @@ export function trigger(move: string) { triggered.push({ move, at: performance.n
 export function triggerEnter() { triggered = []; trigger(state.moves.enter); }
 export function triggerReact() { trigger(state.moves.react); }
 
-function rebuild() { renderMark(state.mark, markCanvas); warp.setSource(markCanvas); }
+function rebuild() { renderMark(state.mark, markCanvas, RES); warp.setSource(markCanvas); }
 subscribe(rebuild); rebuild();
 
 export function currentDeflect(now = performance.now()): Deflect {

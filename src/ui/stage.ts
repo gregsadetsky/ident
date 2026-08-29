@@ -1,6 +1,6 @@
 import { state, update, subscribe, type Destination } from "../core/state";
 import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
-import { canvasToAscii } from "../export/ascii";
+import { canvasToAscii, asciiGrid } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
 import { makeFloating } from "./floating";
@@ -74,7 +74,8 @@ export function mountStage(root: HTMLElement) {
     ctxEl = {};
     if (view === "px") {
       const c = document.createElement("canvas");
-      c.width = state.mark.w; c.height = state.mark.h;
+      c.width = frame.width; c.height = frame.height;
+      c.style.width = state.mark.w + "px"; // css size = logical size; pixels are RES x that
       slot.appendChild(c); ctxEl.canvas = c;
     } else {
       const p = document.createElement("pre"); slot.appendChild(p); ctxEl.pre = p;
@@ -95,10 +96,10 @@ export function mountStage(root: HTMLElement) {
 
   onFrame(() => {
     if (ctxEl.canvas) {
-      if (ctxEl.canvas.width !== state.mark.w || ctxEl.canvas.height !== state.mark.h) { ctxEl.canvas.width = state.mark.w; ctxEl.canvas.height = state.mark.h; }
+      if (ctxEl.canvas.width !== frame.width || ctxEl.canvas.height !== frame.height) { ctxEl.canvas.width = frame.width; ctxEl.canvas.height = frame.height; ctxEl.canvas.style.width = state.mark.w + "px"; }
       drawFrame(ctxEl.canvas);
     }
-    if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame);
+    if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame, undefined, asciiGrid(state.mark.w, state.mark.h));
     let asciiSmall: string | null = null;
     for (const d of DESTS) {
       const t = thumbs.get(d.id)!;

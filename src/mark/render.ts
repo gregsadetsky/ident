@@ -2,10 +2,12 @@ import type { Mark } from "../core/state";
 
 // draws the static mark (shape + fg only, never bg) into a canvas. pure function of mark.
 // bg is composited per destination so ascii can read pure alpha coverage.
-export function renderMark(mark: Mark, canvas: HTMLCanvasElement) {
-  canvas.width = mark.w; canvas.height = mark.h;
+// scale = supersampling factor: the canvas is mark.w*scale x mark.h*scale pixels.
+export function renderMark(mark: Mark, canvas: HTMLCanvasElement, scale = 1) {
+  canvas.width = Math.round(mark.w * scale); canvas.height = Math.round(mark.h * scale);
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, mark.w, mark.h);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.scale(scale, scale);
 
   if (mark.image) {
     const im = mark.image;
