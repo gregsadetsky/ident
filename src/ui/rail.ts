@@ -42,7 +42,7 @@ export function mountRail(root: HTMLElement) {
       <div id="enter"></div>
       <h3 id="hoverLabel" class="tight gap sub2">On hover</h3>
       <div id="react"></div>
-      <details>
+      <details open>
         <summary>advanced</summary>
         <label>speed <input id="speed" type="range" min="0.3" max="3" step="0.05"></label>
         <label>bounce <input id="bounce" type="range" min="0" max="1" step="0.05"></label>
