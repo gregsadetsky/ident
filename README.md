@@ -6,6 +6,16 @@ make identification exports - videos, gifs, and ascii that works in bash and 404
 
 ![acme gif](readme-assets/ident.gif)
 
+## embed api
+
+`<script src="https://ident.greg.technology/embed/ident.js"></script>` then:
+
+- `ident.mount(el, config)` - draws the mark inside `el` (sized to the mark; effects overflow it), plays the enter move, reacts on hover. returns a handle. `config` is what the app's "get embed" bundle writes: `{ mark, moves, tuning }`, plus `ascii: true` to render as text
+- `handle.enter()` - replay the enter move from rest (what happens on load)
+- `handle.react()` - play the hover move (what happens on mouseenter)
+- `handle.trigger(name)` - play any move by name on top of whatever is running, e.g. `trigger("spin")` on a click. names: punch, flag, roll-in, fly-in, squash, spin, psycho, keystone, wobble, none
+- `handle.destroy()` - stop the animation and remove the canvas
+
 ## dev
 
 ```

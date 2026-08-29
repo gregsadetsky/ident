@@ -46,7 +46,7 @@ a { color: inherit; }`);
 // bundles: the page + a local copy of the runtime, so it's self-hostable as-is
 async function bundle(name: string, html: string, htmlName: string) {
   const js = await fetch(embedScriptUrl()).then((r) => { if (!r.ok) throw new Error("could not fetch " + embedScriptUrl()); return r.text(); });
-  const zip = zipSync({ [htmlName]: strToU8(html), "ident.js": strToU8(js), "readme.txt": strToU8(`ident ${name}\n\n${htmlName}  open it, or copy the two script tags into your own page\nident.js    the runtime (also served at ${embedScriptUrl()})\n\napi: ident.mount(el, config) -> { enter(), react(), trigger(move), destroy() }\n`) }, { level: 6 });
+  const zip = zipSync({ [htmlName]: strToU8(html), "ident.js": strToU8(js), "readme.txt": strToU8(`ident ${name}\n\n${htmlName}  open it, or copy the two script tags into your own page\nident.js    the runtime (also served at ${embedScriptUrl()})\n\napi: const h = ident.mount(el, config)\n  h.enter()        replay the enter move from rest\n  h.react()        play the hover move\n  h.trigger(name)  play any move by name on top of what's running (punch, flag, roll-in, fly-in, squash, spin, psycho, keystone, wobble)\n  h.destroy()      stop and remove\n`) }, { level: 6 });
   download(new Blob([zip as BlobPart], { type: "application/zip" }), `ident-${name}.zip`);
 }
 export function downloadEmbed() { return bundle("embed", embedHtml(), "index.html").catch((e) => alert(String(e))); }
