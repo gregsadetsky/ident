@@ -23,7 +23,6 @@ export function mountStage(root: HTMLElement) {
   root.innerHTML = `
     <nav class="tabs"></nav>
     <header class="stagehead">
-      <span class="grow"></span>
       <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
       <span class="exports"></span>
     </header>
