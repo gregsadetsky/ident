@@ -26,7 +26,7 @@ export const MOVES: Record<string, Move> = {
   keystone:  (e) => ({ persp: e * 1.2, dy: e * 0.2 }),
   none:      () => ({}),
 };
-export const ENTER_MOVES = ["punch", "flag", "roll-in", "fly-in", "squash", "spin", "psycho", "keystone"];
+export const ENTER_MOVES = ["punch", "flag", "roll-in", "fly-in", "squash", "spin", "psycho", "keystone", "none"];
 export const REACT_MOVES = ["wobble", "spin", "punch", "squash", "flag", "psycho", "none"];
 
 // chord = sum of all live moves' contributions on top of rest
