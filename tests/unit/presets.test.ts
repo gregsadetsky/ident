@@ -27,11 +27,11 @@ describe("moves", () => {
 
 import { state, hoverAvailable } from "../../src/core/state";
 describe("hoverAvailable", () => {
-  it("false for readme/terminal and for ascii views, true otherwise", () => {
+  it("false for readme/terminal, true for web destinations in px or ascii", () => {
     const s = { ...state, view: { ...state.view } };
     s.dest = "header"; s.view.header = "px"; expect(hoverAvailable(s)).toBe(true);
-    s.view.header = "ascii"; expect(hoverAvailable(s)).toBe(false);
-    s.dest = "404"; s.view["404"] = "px"; expect(hoverAvailable(s)).toBe(true);
+    s.view.header = "ascii"; expect(hoverAvailable(s)).toBe(true);
+    s.dest = "404"; s.view["404"] = "ascii"; expect(hoverAvailable(s)).toBe(true);
     s.dest = "readme"; s.view.readme = "px"; expect(hoverAvailable(s)).toBe(false);
     s.dest = "terminal"; expect(hoverAvailable(s)).toBe(false);
   });

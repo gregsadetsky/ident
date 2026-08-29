@@ -6,7 +6,7 @@ lives at ident.greg.technology, deployed with disco.
 
 ![acme gif](readme-assets/ident.gif)
 
-(on github: png and gif render, mp4 does not - confirmed 2026-08-29)
+(the default mark, `punch` enter move, exported from the app. png and gif render on github, mp4 does not - confirmed 2026-08-29)
 
 ## dev
 

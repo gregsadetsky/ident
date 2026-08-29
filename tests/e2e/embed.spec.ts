@@ -39,7 +39,7 @@ test("embed zip: self-hosted page mounts ident, paints, reacts on hover", async 
   await q.close();
 });
 
-test("404 zip: ascii page renders text, no canvas", async ({ page, browser }) => {
+test("404 zip: ascii page renders colored text, no canvas", async ({ page, browser }) => {
   await page.goto("/");
   await page.click('.tab[data-id="404"]');
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("text=get 404 .zip")]);
@@ -53,6 +53,7 @@ test("404 zip: ascii page renders text, no canvas", async ({ page, browser }) =>
   expect(txt.replace(/\s/g, "").length).toBeGreaterThan(150);
   expect(txt).toMatch(/^[ .:\-=+*#%@\n]*$/);
   expect(await q.locator("#ident canvas").count()).toBe(0);
+  expect(await q.locator("#ident pre").evaluate((e) => getComputedStyle(e).color)).toBe("rgb(255, 77, 0)");
   expect(errs).toEqual([]);
   await q.close();
 });

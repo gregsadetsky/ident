@@ -23,7 +23,7 @@ function page(opts: Partial<IdentConfig>, body: string, css: string): string {
 
 ${body}
 
-<!-- ident: the mark animates on load; px mode reacts on hover, ascii mode loops -->
+<!-- ident: the mark animates on load and reacts on hover -->
 <script src="./ident.js"></script>
 <script>ident.mount(document.getElementById("ident"), ${cfg});</script>
 `;
@@ -35,7 +35,7 @@ export function embedHtml(): string {
 
 // same runtime, 404 dressing: black page, ascii if that's how the 404 destination is set
 export function html404(ascii: boolean): string {
-  return page(ascii ? { ascii: true, loop: 3000, color: "#5dd77a" } : {},
+  return page(ascii ? { ascii: true, color: state.mark.fg, background: state.mark.bg === "transparent" ? "" : state.mark.bg } : {},
     `<main>\n  <div id="ident"></div>\n  <p>404 — page not found</p>\n  <p><a href="/">go home</a></p>\n</main>`,
     `body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #000; color: #5dd77a; font: 14px ui-monospace, Menlo, monospace; }
 main { display: flex; flex-direction: column; align-items: center; gap: 32px; }

@@ -13,9 +13,10 @@ export interface IdentConfig {
   mark: Omit<Mark, "image"> & { image?: string | null }; // image = data url
   moves: { enter: string; react: string };
   tuning: { speed: number; bounce: number; persist: number };
-  ascii?: boolean;   // render as text in a <pre> (colors ignored, no hover)
+  ascii?: boolean;   // render as text in a <pre>: shape only, colored by `color` / `background`
   loop?: number;     // ms: replay the enter move on a timer (for places with no hover)
   color?: string;    // ascii text color (default: inherit)
+  background?: string; // ascii block background (default: none)
 }
 export interface IdentHandle { trigger(move: string): void; enter(): void; react(): void; destroy(): void }
 
@@ -37,7 +38,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
     out.remove();
     pre = document.createElement("pre");
     const g = asciiGrid(fs.w, fs.h);
-    Object.assign(pre.style, { margin: "0", whiteSpace: "pre", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: "10px", lineHeight: "10px", width: g.cols + "ch", color: cfg.color || "inherit" });
+    Object.assign(pre.style, { margin: "0", whiteSpace: "pre", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: "10px", lineHeight: "10px", width: g.cols + "ch", color: cfg.color || "inherit", background: cfg.background || "" });
     Object.assign(el.style, { width: "auto", height: "auto" });
     el.appendChild(pre);
   }
@@ -64,7 +65,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
   const trigger = (move: string) => triggered.push({ move, at: performance.now() });
   const enter = () => { triggered = []; trigger(cfg.moves.enter); };
   const react = () => trigger(cfg.moves.react);
-  if (!cfg.ascii) el.addEventListener("mouseenter", react);
+  el.addEventListener("mouseenter", react);
   const timer = cfg.loop ? setInterval(enter, cfg.loop) : 0;
 
   let raf = 0;
