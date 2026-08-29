@@ -11,3 +11,4 @@
 - favicon / opengraph - punted
 - to be tested: dropping an svg and a png onto the page (untested so far)
 - test absolutely all export options end to end in their real destination: readme: png + gif confirmed working on github, mp4 confirmed not (2026-08-29); still to test: embed on a real site, 404.html in a real server, .sh in bash/zsh/iterm/terminal.app
+- crt effects: more deflections. the deflection is already webgl (src/gl/warp.ts: per-pixel sampling coordinate bent through sweep lag -> keystone -> zoom/spin -> oscillators -> flag, persistence via ping-pong fbo). the moves in src/core/presets.ts only combine those few knobs. to get more scanimate-like: more sources (ramps, more oscillators, noise), a patch matrix (any source -> any deflection axis, like the spike's uM[20]), per-scanline size/position ramps, the screen pass (glow, scanlines, barrel, phosphor colorizer). presets should then be chords over that, not hand-written param sets.
