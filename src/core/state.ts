@@ -23,11 +23,12 @@ export interface State {
   headerPos: { x: number; y: number }; // px, top-left of the floating mark over a framed site
 }
 
-export const FONTS = ["Archivo Black", "Anton", "Monoton", "Bungee", "Rubik Mono One", "Space Mono",
-  "Bebas Neue", "Righteous", "Press Start 2P", "Abril Fatface", "Lobster", "Orbitron", "Permanent Marker", "Black Ops One", "Fredoka", "Playfair Display"];
+export const FONTS = [
+  "Abril Fatface", "Anton", "Archivo Black", "Bebas Neue", "Black Ops One", "Bungee", "Fredoka", "Lobster", "Monoton", "Orbitron", "Permanent Marker", "Playfair Display", "Press Start 2P", "Righteous", "Rubik Mono One", "Space Mono",
+];
 
 export const state: State = {
-  mark: { text: "Acme", font: FONTS[0], mode: "fill", fg: "#ff4d00", bg: "transparent", image: null, w: 512, h: 192 },
+  mark: { text: "Acme", font: "Archivo Black", mode: "fill", fg: "#ff4d00", bg: "transparent", image: null, w: 512, h: 192 },
   moves: { enter: "punch", react: "wobble" },
   tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
   dest: "header",
