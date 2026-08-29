@@ -72,8 +72,10 @@ export function mountRail(root: HTMLElement) {
     document.fonts.load(`40px "${font.value}"`).then(() => update(() => {}));
   };
 
-  $("mode").replaceWith(chips(["fill", "outline", "3d"], () => state.mark.mode, (v) => { state.mark.mode = v as RenderMode; }));
-  $("shape").replaceWith(chips(["bare", "box", "circle"], () => state.mark.shape, (v) => { state.mark.shape = v as Shape; }));
+  const modeChips = chips(["fill", "outline", "3d"], () => state.mark.mode, (v) => { state.mark.mode = v as RenderMode; });
+  const shapeChips = chips(["bare", "box", "circle"], () => state.mark.shape, (v) => { state.mark.shape = v as Shape; });
+  $("mode").replaceWith(modeChips); $("shape").replaceWith(shapeChips);
+  const syncChips = (wrap: HTMLElement, current: string) => wrap.querySelectorAll<HTMLButtonElement>(".chip").forEach((b) => b.classList.toggle("on", b.textContent === current));
 
   const fg = $<HTMLInputElement>("fg"), bg = $<HTMLInputElement>("bg"), bgt = $<HTMLInputElement>("bgt");
   fg.value = state.mark.fg; bg.value = "#000000"; bgt.checked = state.mark.bg === "transparent";
@@ -115,14 +117,19 @@ export function mountRail(root: HTMLElement) {
   }
   // randomize: every advanced knob within its slider range, then replay on-load to show it
   const sliders = { speed, bounce, persist, glow: $<HTMLInputElement>("glow"), scan: $<HTMLInputElement>("scan"), curve: $<HTMLInputElement>("curve") };
+  const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
   $("randomize").onclick = () => {
     update((s) => {
+      s.mark.font = pick(FONTS); font.value = s.mark.font;
+      s.mark.mode = pick(["fill", "outline", "3d"] as const); syncChips(modeChips, s.mark.mode);
+      s.mark.shape = pick(["bare", "box", "circle"] as const); syncChips(shapeChips, s.mark.shape);
       for (const k of Object.keys(sliders) as (keyof typeof sliders)[]) {
         const el = sliders[k], min = +el.min, max = +el.max, step = +el.step;
         const v = Math.round((min + Math.random() * (max - min)) / step) * step;
         s.tuning[k] = +v.toFixed(3); el.value = String(s.tuning[k]);
       }
     });
+    document.fonts.load(`40px "${state.mark.font}"`).then(() => update(() => {}));
     triggerEnter();
   };
 
