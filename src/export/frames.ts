@@ -33,7 +33,9 @@ export const PLAY_SH = `#!/usr/bin/env bash
 # plays frames.txt in the terminal: clears the screen, prints a frame, waits 1/fps. ctrl-c to stop.
 # usage: ./play.sh [frames.txt] [loops]   (loops defaults to 1, 0 = forever)
 set -u
-file="\${1:-frames.txt}"; loops="\${2:-1}"
+here="$(cd "$(dirname "$0")" && pwd)"
+file="\${1:-$here/frames.txt}"; loops="\${2:-1}"
+if [ ! -f "$file" ]; then echo "play.sh: no such file: $file" >&2; exit 1; fi
 fps=$(head -1 "$file" | sed -n 's/.*fps=\\([0-9]*\\).*/\\1/p'); fps="\${fps:-30}"
 delay=$(awk "BEGIN { printf \\"%.4f\\", 1 / $fps }")
 frames=(); cur=""
@@ -55,7 +57,7 @@ export const PLAY_JS = `#!/usr/bin/env node
 // drop loadFrames() into your own tui code:
 //   import { loadFrames } from "./play.mjs"; const clip = loadFrames("frames.txt");
 //   clip.frames[i] is a string of clip.rows lines; play at clip.fps
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { fileURLToPath } from "url";
 const SEP = "${SEP}";
 
@@ -78,14 +80,18 @@ export function play(clip, loops = 1) {
   }, 1000 / clip.fps);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) play(loadFrames(process.argv[2] || "frames.txt"), Number(process.argv[3] ?? 1));
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const file = process.argv[2] || new URL("./frames.txt", import.meta.url).pathname;
+  if (!existsSync(file)) { console.error("play.mjs: no such file: " + file); process.exit(1); }
+  play(loadFrames(file), Number(process.argv[3] ?? 1));
+}
 `;
 
 export function terminalReadme(clip: AsciiClip): string {
   return `ident terminal bundle
 
 frames.txt  ${clip.frames.length} ascii frames, ${clip.cols}x${clip.rows} chars, ${clip.fps} fps, separated by a line of ${SEP}
-play.sh     bash player: ./play.sh [frames.txt] [loops]   (0 loops = forever)
+play.sh     bash player: ./play.sh [frames.txt] [loops]   (0 loops = forever; frames.txt defaults to the one next to the script)
 play.mjs    node player + loader: node play.mjs, or import { loadFrames } from "./play.mjs" in your own tui
 
 the format is trivial to read from any language: skip the first line, split on "\\n${SEP}\\n".

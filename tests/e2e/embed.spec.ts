@@ -81,6 +81,15 @@ test("terminal zip: frames.txt parses, node loader and bash player agree on fram
   // bash player, one loop, output captured: one clear sequence per frame
   const sh = execSync("bash ./play.sh frames.txt 1 | cat", { cwd: dir, timeout: 30000 });
   expect(sh.toString("latin1").split("\x1b[H\x1b[2J").length - 1).toBe(75);
+  // run from elsewhere with no args: finds frames.txt next to itself. a bad path errors out, prints nothing
+  const elsewhere = execSync(`bash ${join(dir, "play.sh")} "" 1 2>&1 | cat || true`, { cwd: tmpdir(), timeout: 30000 }).toString("latin1");
+  expect(elsewhere.split("\x1b[H\x1b[2J").length - 1).toBe(75);
+  let code = 0, out = "";
+  try { execSync(`bash ./play.sh /nope/frames.txt 1`, { cwd: dir, stdio: "pipe" }); } catch (e: any) { code = e.status; out = e.stderr.toString() + e.stdout.toString(); }
+  expect(code).toBe(1); expect(out).toContain("no such file"); expect(out).not.toContain("\x1b[2J");
+  code = 0; out = "";
+  try { execSync(`node ./play.mjs /nope/frames.txt 1`, { cwd: dir, stdio: "pipe" }); } catch (e: any) { code = e.status; out = e.stderr.toString(); }
+  expect(code).toBe(1); expect(out).toContain("no such file");
   // the last frame is the settled mark: not empty
   const clip = files["frames.txt"].split("\n=====\n");
   expect(clip[75].replace(/\s/g, "").length).toBeGreaterThan(100);
