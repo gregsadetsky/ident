@@ -7,7 +7,7 @@ import { state, update } from "./core/state";
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <aside id="rail"><h1>IDENT</h1></aside>
   <main id="stage"></main>
-  <div id="mobile"><h1>IDENT</h1><p>Hi! Unfortunately, this user interface is a tad too demanding to work on mobile. Please see this site using your desktop browser! See you there -- cheers.<br>Greg</p></div>
+  <div id="mobile"><h1>IDENT</h1><p>Hi!<br>Unfortunately, this user interface is a tad too demanding to work on mobile.<br>I promise that it's really cool - please try it on your desktop browser!<br>See you there, cheers!<br>Greg</p></div>
 `;
 mountRail(document.querySelector("#rail")!);
 mountStage(document.querySelector("#stage")!);
