@@ -1,6 +1,6 @@
 import { state, subscribe } from "./core/state";
 import { envelope } from "./core/envelope";
-import { MOVES, chord, type Deflect } from "./core/presets";
+import { MOVES, REST, chord, type Deflect } from "./core/presets";
 import { renderMark } from "./mark/render";
 import { Warp } from "./gl/warp";
 
@@ -34,6 +34,12 @@ export function drawFrame(target: HTMLCanvasElement) {
   ctx.clearRect(0, 0, target.width, target.height);
   if (state.mark.bg !== "transparent") { ctx.fillStyle = state.mark.bg; ctx.fillRect(0, 0, target.width, target.height); }
   ctx.drawImage(frame, 0, 0, target.width, target.height);
+}
+
+// renders one frame at rest with no persistence into target (the live loop overwrites it next tick)
+export function renderStill(target: HTMLCanvasElement) {
+  warp.render(REST, 0, 0);
+  drawFrame(target);
 }
 
 const frames = new Set<() => void>();

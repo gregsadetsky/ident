@@ -1,15 +1,18 @@
 import { state, update, subscribe, type Destination } from "../core/state";
 import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii } from "../export/ascii";
+import { downloadStill } from "../export/still";
 
-// terminal: ascii only, no hover (there is no hover in a shell) - the enter move loops instead
-const DESTS: { id: Destination; label: string; export: string; asciiLocked?: boolean; loop?: boolean }[] = [
-  { id: "header", label: "site header", export: "get embed" },
-  { id: "404", label: "404", export: "get .html" },
-  { id: "readme", label: "readme", export: "get .mp4" },
-  { id: "terminal", label: "terminal", export: "get .sh", asciiLocked: true, loop: true },
+// exports: label + action (undefined = not built yet)
+interface Export { label: string; run?: () => void }
+interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean; loop?: boolean }
+// loop: destinations with no hover (a readme, a shell) replay the enter move on a timer instead
+const DESTS: Dest[] = [
+  { id: "header", label: "site header", exports: [{ label: "get embed" }] },
+  { id: "404", label: "404", exports: [{ label: "get .html" }] },
+  { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif" }, { label: "get .mp4" }], loop: true },
+  { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true, loop: true },
 ];
-
 
 export function mountStage(root: HTMLElement) {
   root.innerHTML = `
@@ -18,14 +21,14 @@ export function mountStage(root: HTMLElement) {
       <span class="editing"></span>
       <span class="grow"></span>
       <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
-      <button class="export"></button>
+      <span class="exports"></span>
     </header>
     <div class="context"></div>
   `;
   const tabs = root.querySelector<HTMLElement>(".tabs")!;
   const editing = root.querySelector<HTMLElement>(".editing")!;
   const tgl = root.querySelector<HTMLElement>(".tgl")!;
-  const exportBtn = root.querySelector<HTMLButtonElement>(".export")!;
+  const exports = root.querySelector<HTMLElement>(".exports")!;
   const context = root.querySelector<HTMLElement>(".context")!;
 
   // tabs are live thumbnails
@@ -40,7 +43,6 @@ export function mountStage(root: HTMLElement) {
     tabs.appendChild(b); thumbs.set(d.id, { px, asc });
   }
   tgl.querySelectorAll<HTMLButtonElement>("button").forEach((b) => b.onclick = () => update((s) => { s.view[s.dest] = b.dataset.v as "px" | "ascii"; }));
-  exportBtn.onclick = () => alert("export: not built yet");
 
   let ctxEl: { canvas?: HTMLCanvasElement; pre?: HTMLPreElement; cols: number } = { cols: 60 };
 
@@ -48,7 +50,12 @@ export function mountStage(root: HTMLElement) {
     const d = DESTS.find((x) => x.id === state.dest)!;
     const view = d.asciiLocked ? "ascii" : state.view[d.id];
     editing.textContent = `editing: ${d.label}`;
-    exportBtn.textContent = d.export + " ↓";
+    exports.innerHTML = "";
+    for (const ex of d.exports) {
+      const b = document.createElement("button"); b.className = "export"; b.textContent = ex.label + " ↓";
+      b.onclick = ex.run ?? (() => alert("not built yet"));
+      exports.appendChild(b);
+    }
     tgl.hidden = !!d.asciiLocked;
     tgl.querySelectorAll<HTMLButtonElement>("button").forEach((b) => b.classList.toggle("on", b.dataset.v === view));
     tabs.querySelectorAll<HTMLButtonElement>(".tab").forEach((b) => b.classList.toggle("on", b.dataset.id === d.id));
