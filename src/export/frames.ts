@@ -31,9 +31,9 @@ export function parseFramesTxt(txt: string): AsciiClip {
 
 export const PLAY_SH = `#!/usr/bin/env bash
 # plays frames.txt in the terminal: clears the screen, prints a frame, waits 1/fps. ctrl-c to stop.
-# usage: ./play.sh [frames.txt] [loops]   (loops defaults to 3, 0 = forever)
+# usage: ./play.sh [frames.txt] [loops]   (loops defaults to 1, 0 = forever)
 set -u
-file="\${1:-frames.txt}"; loops="\${2:-3}"
+file="\${1:-frames.txt}"; loops="\${2:-1}"
 fps=$(head -1 "$file" | sed -n 's/.*fps=\\([0-9]*\\).*/\\1/p'); fps="\${fps:-30}"
 delay=$(awk "BEGIN { printf \\"%.4f\\", 1 / $fps }")
 frames=(); cur=""
@@ -65,7 +65,7 @@ function loadFrames(path) {
   return { cols: num("cols"), rows: num("rows"), fps: num("fps"), frames: parts };
 }
 
-function play(clip, loops = 3) {
+function play(clip, loops = 1) {
   process.stdout.write("\\x1b[?25l");
   let i = 0, n = 0;
   const stop = () => { process.stdout.write("\\x1b[?25h\\n"); process.exit(0); };
@@ -77,7 +77,7 @@ function play(clip, loops = 3) {
 }
 
 module.exports = { loadFrames, play };
-if (require.main === module) play(loadFrames(process.argv[2] || "frames.txt"), Number(process.argv[3] ?? 3));
+if (require.main === module) play(loadFrames(process.argv[2] || "frames.txt"), Number(process.argv[3] ?? 1));
 `;
 
 export function terminalReadme(clip: AsciiClip): string {
