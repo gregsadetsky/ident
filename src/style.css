@@ -79,6 +79,10 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 /* a real site is loaded: drop the fake chrome, float the mark over the frame */
 .site.framed .topbar { background: transparent; }
 .site.framed .links, .site.framed .body { display: none; }
+.site.framed .topbar { padding: 0; }
+.slot.floating { position: absolute; cursor: move; outline: 1px dashed rgba(255,77,0,.6); outline-offset: 2px; user-select: none; touch-action: none; }
+.slot.floating canvas { width: 100% !important; height: 100% !important; }
+.slot.floating .resize { position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--accent); border: 1.5px solid var(--ink); cursor: nwse-resize; }
 
 /* mobile: the editor stays underneath, a full-screen note on top */
 #mobile { display: none; position: fixed; inset: 0; background: var(--paper); padding: 24px; z-index: 10; }

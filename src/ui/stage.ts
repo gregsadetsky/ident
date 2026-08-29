@@ -3,6 +3,7 @@ import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine
 import { canvasToAscii } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
+import { makeFloating } from "./floating";
 
 // exports: label + action (undefined = not built yet)
 interface Export { label: string; run?: () => void }
@@ -48,9 +49,14 @@ export function mountStage(root: HTMLElement) {
 
   let ctxEl: { canvas?: HTMLCanvasElement; pre?: HTMLPreElement; cols: number } = { cols: 60 };
 
+  // rebuild the context only when what it shows changes; mark edits must not reload an iframe
+  let built = "";
   function build() {
     const d = DESTS.find((x) => x.id === state.dest)!;
     const view = d.asciiLocked ? "ascii" : state.view[d.id];
+    const key = `${d.id}|${view}|${state.siteUrl}`;
+    if (key === built) return;
+    built = key;
     editing.textContent = `editing: ${d.label}`;
     exports.innerHTML = "";
     for (const ex of d.exports) {
@@ -83,13 +89,17 @@ export function mountStage(root: HTMLElement) {
       const fr = context.querySelector<HTMLIFrameElement>("iframe")!;
       if (state.siteUrl) fr.src = state.siteUrl;
       context.querySelector(".site")!.classList.toggle("framed", !!state.siteUrl);
+      if (state.siteUrl) makeFloating(slot);
     }
   }
   subscribe(build); build();
   setInterval(() => { if (DESTS.find((x) => x.id === state.dest)?.loop) triggerEnter(); }, 3000);
 
   onFrame(() => {
-    if (ctxEl.canvas) drawFrame(ctxEl.canvas);
+    if (ctxEl.canvas) {
+      if (ctxEl.canvas.width !== state.mark.w || ctxEl.canvas.height !== state.mark.h) { ctxEl.canvas.width = state.mark.w; ctxEl.canvas.height = state.mark.h; }
+      drawFrame(ctxEl.canvas);
+    }
     if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame, ctxEl.cols);
     let asciiSmall: string | null = null;
     for (const d of DESTS) {

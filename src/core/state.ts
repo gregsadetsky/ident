@@ -20,6 +20,7 @@ export interface State {
   dest: Destination;
   view: Record<Destination, View>;
   siteUrl: string;
+  headerPos: { x: number; y: number }; // px, top-left of the floating mark over a framed site
 }
 
 export const FONTS = ["Archivo Black", "Anton", "Monoton", "Bungee", "Rubik Mono One", "Space Mono",
@@ -32,6 +33,7 @@ export const state: State = {
   dest: "header",
   view: { header: "px", "404": "ascii", readme: "px", terminal: "ascii" },
   siteUrl: "",
+  headerPos: { x: 24, y: 16 },
 };
 
 type Listener = (s: State) => void;

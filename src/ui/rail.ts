@@ -1,4 +1,4 @@
-import { state, update, FONTS, type RenderMode } from "../core/state";
+import { state, update, subscribe, FONTS, type RenderMode } from "../core/state";
 import { ENTER_MOVES, REACT_MOVES } from "../core/presets";
 import { triggerEnter, triggerReact } from "../engine";
 
@@ -78,6 +78,7 @@ export function mountRail(root: HTMLElement) {
   w.value = String(state.mark.w); h.value = String(state.mark.h);
   const setSize = () => update((s) => { s.mark.w = +w.value || 512; s.mark.h = +h.value || 192; });
   w.onchange = setSize; h.onchange = setSize;
+  subscribe((s) => { if (document.activeElement !== w) w.value = String(s.mark.w); if (document.activeElement !== h) h.value = String(s.mark.h); });
 
   $("enter").replaceWith(chips(ENTER_MOVES, () => state.moves.enter, (v) => { state.moves.enter = v; }, triggerEnter));
   $("react").replaceWith(chips(REACT_MOVES, () => state.moves.react, (v) => { state.moves.react = v; }, triggerReact));
