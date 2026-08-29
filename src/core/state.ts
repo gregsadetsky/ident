@@ -26,7 +26,7 @@ export const FONTS = ["Archivo Black", "Anton", "Monoton", "Bungee", "Rubik Mono
   "Bebas Neue", "Righteous", "Press Start 2P", "Abril Fatface", "Lobster", "Orbitron", "Permanent Marker", "Black Ops One", "Fredoka", "Playfair Display"];
 
 export const state: State = {
-  mark: { text: "IDENT", font: FONTS[0], mode: "fill", fg: "#ffffff", bg: "transparent", image: null, w: 512, h: 192 },
+  mark: { text: "IDENT", font: FONTS[0], mode: "fill", fg: "#ff4d00", bg: "transparent", image: null, w: 512, h: 192 },
   moves: { enter: "punch", react: "wobble" },
   tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
   dest: "header",

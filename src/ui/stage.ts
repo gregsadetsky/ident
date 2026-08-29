@@ -2,11 +2,12 @@ import { state, update, subscribe, type Destination } from "../core/state";
 import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii } from "../export/ascii";
 
-const DESTS: { id: Destination; label: string; export: string; asciiLocked?: boolean }[] = [
+// terminal: ascii only, no hover (there is no hover in a shell) - the enter move loops instead
+const DESTS: { id: Destination; label: string; export: string; asciiLocked?: boolean; loop?: boolean }[] = [
   { id: "header", label: "site header", export: "get embed" },
   { id: "404", label: "404", export: "get .html" },
   { id: "readme", label: "readme", export: "get .mp4" },
-  { id: "terminal", label: "terminal", export: "get .sh", asciiLocked: true },
+  { id: "terminal", label: "terminal", export: "get .sh", asciiLocked: true, loop: true },
 ];
 
 
@@ -57,12 +58,12 @@ export function mountStage(root: HTMLElement) {
     ctxEl = { cols: +(slot.dataset.cols || 60) };
     if (view === "px") {
       const c = document.createElement("canvas");
-      c.width = +(slot.dataset.w || 320); c.height = +(slot.dataset.h || 120);
+      c.width = state.mark.w; c.height = state.mark.h;
       slot.appendChild(c); ctxEl.canvas = c;
     } else {
       const p = document.createElement("pre"); slot.appendChild(p); ctxEl.pre = p;
     }
-    slot.onmouseenter = triggerReact;
+    slot.onmouseenter = d.loop ? null : triggerReact;
     const url = context.querySelector<HTMLInputElement>("#siteurl");
     if (url) {
       url.value = state.siteUrl;
@@ -73,6 +74,7 @@ export function mountStage(root: HTMLElement) {
     }
   }
   subscribe(build); build();
+  setInterval(() => { if (DESTS.find((x) => x.id === state.dest)?.loop) triggerEnter(); }, 3000);
 
   onFrame(() => {
     if (ctxEl.canvas) drawFrame(ctxEl.canvas);
@@ -94,23 +96,19 @@ const CONTEXT: Record<Destination, (view: string) => string> = {
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
-        <div class="topbar"><span class="slot" data-w="240" data-h="80" data-cols="40"></span><span class="links">about &nbsp; docs &nbsp; pricing</span></div>
+        <div class="topbar"><span class="slot" data-cols="40"></span><span class="links">about &nbsp; docs &nbsp; pricing</span></div>
         <div class="body"><div class="ph w60"></div><div class="ph w90"></div><div class="ph w40"></div></div>
       </div>
     </div>`,
   "404": () => `
     <div class="page404">
-      <span class="slot" data-w="480" data-h="180" data-cols="72"></span>
+      <span class="slot" data-cols="72"></span>
       <p>404 — page not found · <a href="#">go home</a></p>
     </div>`,
   readme: () => `
     <div class="gh">
-      <div class="ghbar">github.com/you/you</div>
-      <div class="ghhead">you / <b>you</b> &nbsp;·&nbsp; ☆ 1.2k</div>
-      <div class="ghbody">
-        <span class="slot" data-w="640" data-h="240" data-cols="80"></span>
-        <h3>install</h3><code>npm i you</code>
-      </div>
+      <img src="/github-readme.png" alt="">
+      <span class="slot" data-cols="90"></span>
     </div>`,
   terminal: () => `
     <div class="term">

@@ -1,7 +1,8 @@
 const RAMP = " .:-=+*#%@";
 
-// canvas -> ascii lines. cols = character columns; rows follow the ~2:1 glyph aspect.
-export function canvasToAscii(src: HTMLCanvasElement, cols: number, invert = false): string {
+// canvas -> ascii lines from alpha coverage only: colors never matter, empty = space.
+// cols = character columns; rows follow the ~2:1 glyph aspect.
+export function canvasToAscii(src: HTMLCanvasElement, cols: number): string {
   const rows = Math.max(1, Math.round((src.height / src.width) * cols * 0.5));
   const tmp = document.createElement("canvas");
   tmp.width = cols; tmp.height = rows;
@@ -13,10 +14,8 @@ export function canvasToAscii(src: HTMLCanvasElement, cols: number, invert = fal
     let line = "";
     for (let x = 0; x < cols; x++) {
       const i = (y * cols + x) * 4;
-      // luminance weighted by alpha so transparent = dark
-      let l = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255 * (d[i + 3] / 255);
-      if (invert) l = 1 - l;
-      line += RAMP[Math.min(RAMP.length - 1, Math.floor(l * RAMP.length))];
+      const a = d[i + 3] / 255;
+      line += RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length))];
     }
     lines.push(line.replace(/\s+$/, ""));
   }

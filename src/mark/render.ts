@@ -1,11 +1,11 @@
 import type { Mark } from "../core/state";
 
-// draws the static mark into a canvas. pure function of mark.
+// draws the static mark (shape + fg only, never bg) into a canvas. pure function of mark.
+// bg is composited per destination so ascii can read pure alpha coverage.
 export function renderMark(mark: Mark, canvas: HTMLCanvasElement) {
   canvas.width = mark.w; canvas.height = mark.h;
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, mark.w, mark.h);
-  if (mark.bg !== "transparent") { ctx.fillStyle = mark.bg; ctx.fillRect(0, 0, mark.w, mark.h); }
 
   if (mark.image) {
     const im = mark.image;

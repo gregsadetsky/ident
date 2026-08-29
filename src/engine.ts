@@ -32,6 +32,7 @@ export function currentDeflect(now = performance.now()): Deflect {
 export function drawFrame(target: HTMLCanvasElement) {
   const ctx = target.getContext("2d")!;
   ctx.clearRect(0, 0, target.width, target.height);
+  if (state.mark.bg !== "transparent") { ctx.fillStyle = state.mark.bg; ctx.fillRect(0, 0, target.width, target.height); }
   ctx.drawImage(frame, 0, 0, target.width, target.height);
 }
 
