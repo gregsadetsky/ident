@@ -100,7 +100,7 @@ export function mountStage(root: HTMLElement) {
   let sizedFor = "";
   function sizeReadmeSlot() {
     const slot = context.querySelector<HTMLElement>(".gh .slot"); if (!slot) return;
-    const key = `${state.mark.w}x${state.mark.h}`; if (key === sizedFor) return; sizedFor = key;
+    const key = `${state.mark.w}x${state.mark.h}`; if (key === sizedFor && slot.style.width) return; sizedFor = key;
     slot.style.width = ((state.mark.w * SHOT.dpr) / SHOT.w) * 100 + "%";
     slot.style.height = ((state.mark.h * SHOT.dpr) / SHOT.h) * 100 + "%";
   }

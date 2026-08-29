@@ -91,3 +91,18 @@ test("mobile shows the note and hides the editor", async ({ browser }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
   await ctx.close();
 });
+
+test("px -> ascii -> px keeps painting on every toggleable destination", async ({ page }) => {
+  await page.goto("/");
+  for (const id of ["header", "404", "readme"]) {
+    await page.click(`.tab[data-id="${id}"]`);
+    await page.click('.tgl >> text="ascii"'); await page.waitForTimeout(150);
+    await expect(page.locator(".context .slot pre")).toBeVisible();
+    await page.click('.tgl >> text="px"'); await page.waitForTimeout(3600);
+    const c = page.locator(".context .slot canvas");
+    const box = (await c.boundingBox())!;
+    expect(box.width, id).toBeGreaterThan(50);
+    const painted = await c.evaluate((el) => { const cv = el as HTMLCanvasElement; const d = cv.getContext("2d")!.getImageData(0, 0, cv.width, cv.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
+    expect(painted, id).toBeGreaterThan(1000);
+  }
+});
