@@ -92,7 +92,7 @@ export function mountStage(root: HTMLElement) {
 
 const CONTEXT: Record<Destination, (view: string) => string> = {
   header: () => `
-    <div class="urlbar"><input id="siteurl" type="url" placeholder="https://your-site.com — see the mark over your real site (if it allows framing)"></div>
+    <div class="urlbar"><input id="siteurl" type="url" placeholder="https://your-site.com"></div>
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
