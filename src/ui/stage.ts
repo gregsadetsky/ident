@@ -2,7 +2,7 @@ import { state, update, subscribe, hoverAvailable, LOOP_DESTS, type Destination 
 import { drawFrame, frame, frameNoHover, frameSize, markRect, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii, asciiGrid } from "../export/ascii";
 import { downloadStill } from "../export/still";
-import { download, encodeGif, encodeMp4 } from "../export/video";
+import { download, encodeGif } from "../export/video";
 import { downloadEmbed, download404 } from "../export/embed";
 import { downloadTerminalBundle } from "../export/frames";
 import { makeFloating } from "./floating";
@@ -10,13 +10,13 @@ import { normalizeSiteUrl } from "../core/url";
 
 // exports: label + action (undefined = not built yet)
 interface Export { label: string; run?: () => void }
-interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean }
+interface Dest { id: Destination; label: string; tab?: string; exports: Export[]; asciiLocked?: boolean }
+const GITHUB_MARK = `<svg class="gh-mark" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`;
 const DESTS: Dest[] = [
   { id: "header", label: "site header", exports: [{ label: "get embed .zip", run: downloadEmbed }] },
-  { id: "404", label: "404", exports: [{ label: "get 404 .zip", run: download404 }] },
-  { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") },
-    { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }] },
-  { id: "terminal", label: "terminal", exports: [{ label: "get terminal .zip", run: downloadTerminalBundle }], asciiLocked: true },
+  { id: "404", label: "404", tab: "404.html", exports: [{ label: "get 404 .zip", run: download404 }] },
+  { id: "readme", label: "readme", tab: `${GITHUB_MARK} README.md`, exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") }] },
+  { id: "terminal", label: "terminal", tab: "&gt; terminal", exports: [{ label: "get terminal .zip", run: downloadTerminalBundle }], asciiLocked: true },
 ];
 
 export function mountStage(root: HTMLElement) {
@@ -43,7 +43,7 @@ export function mountStage(root: HTMLElement) {
     const px = document.createElement("canvas"); px.width = 160; px.height = 60;
     const asc = document.createElement("pre");
     const thumb = document.createElement("div"); thumb.className = "thumb"; thumb.appendChild(asc);
-    const name = document.createElement("span"); name.textContent = d.label;
+    const name = document.createElement("span"); name.innerHTML = d.tab ?? d.label;
     b.append(px, thumb, name);
     b.onclick = () => update((s) => { s.dest = d.id; });
     tabs.appendChild(b); thumbs.set(d.id, { px, asc });
@@ -84,6 +84,7 @@ export function mountStage(root: HTMLElement) {
       p.style.width = asciiGrid(frameSize().w, frameSize().h).cols + "ch"; // trailing spaces are stripped; keep the block centred
     }
     slot.onmouseenter = () => { if (hoverAvailable(state)) triggerReact(); };
+    sizeReadmeSlot();
     const url = context.querySelector<HTMLInputElement>("#siteurl");
     if (url) {
       url.value = state.siteUrl;
@@ -96,6 +97,17 @@ export function mountStage(root: HTMLElement) {
   }
   subscribe(build); build();
   setInterval(() => { if (LOOP_DESTS.includes(state.dest)) triggerEnter(); }, 3000);
+
+  // readme: github shows the gif at its css size; the screenshot is a 2x capture of 2886x1966
+  const SHOT = { w: 2886, h: 1966, dpr: 2 };
+  let sizedFor = "";
+  function sizeReadmeSlot() {
+    const slot = context.querySelector<HTMLElement>(".gh .slot"); if (!slot) return;
+    const key = `${state.mark.w}x${state.mark.h}`; if (key === sizedFor) return; sizedFor = key;
+    slot.style.width = ((state.mark.w * SHOT.dpr) / SHOT.w) * 100 + "%";
+    slot.style.height = ((state.mark.h * SHOT.dpr) / SHOT.h) * 100 + "%";
+  }
+  subscribe(sizeReadmeSlot);
 
   // which scan a destination shows: hover-capable ones get the full chord, others enter-only
   const frameFor = (id: Destination) => hoverAvailable({ ...state, dest: id }) ? frame : frameNoHover;

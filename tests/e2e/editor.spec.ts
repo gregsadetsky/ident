@@ -63,13 +63,12 @@ test("site url gets https prefixed, iframe loads, mark floats and resizes into t
   expect(await page.evaluate(() => (window as any).__fr === document.querySelector("iframe"))).toBe(true);
 });
 
-test("readme exports: png, gif and mp4 download with the right magic bytes", async ({ page }) => {
+test("readme exports: png and gif download with the right magic bytes", async ({ page }) => {
   await page.goto("/");
   await page.click('.tab[data-id="readme"]');
   const magic: Record<string, [string, string]> = {
     "get still .png": ["ident.png", "89504e47"],
     "get .gif": ["ident.gif", "47494638"],
-    "get .mp4": ["ident.mp4", "66747970"], // "ftyp" at offset 4
   };
   for (const [label, [name, hex]] of Object.entries(magic)) {
     const [dl] = await Promise.all([page.waitForEvent("download"), page.click(`text=${label}`)]);
