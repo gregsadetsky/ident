@@ -3,8 +3,8 @@
   font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--ink); background: var(--paper);
 }
 body { margin: 0; }
-#app { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
-h1 { margin: 0 0 12px; line-height: 0; }
+#app { display: grid; grid-template-columns: 290px 1fr; height: 100vh; }
+h1 { margin: 0 0 -14px; line-height: 0; }
 .logo { cursor: default; }
 h2 { font: 700 13px ui-monospace, monospace; letter-spacing: 1.5px; text-transform: uppercase; color: #888; margin: 0 0 8px; user-select: none; }
 h2.off, h3.off { opacity: .35; }
@@ -16,7 +16,7 @@ h2.gap, h3.gap { margin-top: 12px; }
 
 #rail { padding: 16px; border-right: 1px solid var(--line); overflow-y: auto; display: flex; flex-direction: column; gap: 32px; }
 #rail section { display: flex; flex-direction: column; gap: 8px; }
-.cta { background: var(--accent); border-radius: 8px; padding: 12px 12px 12px; box-shadow: 0 3px 0 var(--ink); margin-bottom: 4px; }
+.cta { background: var(--accent); border-radius: 8px; padding: 12px; box-shadow: 0 3px 0 var(--ink); margin-bottom: 14px; }
 .cta h2 { color: var(--ink); margin-bottom: 10px; }
 #rail #text { font-size: 16px; font-weight: 700; padding: 8px 10px; border-width: 2px; border-radius: 6px; }
 #rail input[type=text], #rail select, #rail input[type=number], #rail input[type=url] {
