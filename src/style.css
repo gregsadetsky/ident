@@ -74,3 +74,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .termbody { padding: 16px; color: #5dd77a; } .termbody .slot pre { color: #5dd77a; }
 .cursor { animation: blink 1s steps(1) infinite; } @keyframes blink { 50% { opacity: 0 } }
 [hidden] { display: none !important; }
+
+/* a real site is loaded: drop the fake chrome, float the mark over the frame */
+.site.framed .topbar { background: transparent; }
+.site.framed .links, .site.framed .body { display: none; }

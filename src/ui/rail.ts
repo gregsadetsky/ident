@@ -48,6 +48,7 @@ export function mountRail(root: HTMLElement) {
         <summary>fine tune</summary>
         <label>speed <input id="speed" type="range" min="0.3" max="3" step="0.05"></label>
         <label>bounce <input id="bounce" type="range" min="0" max="1" step="0.05"></label>
+        <label>persist <input id="persist" type="range" min="0" max="0.97" step="0.01"></label>
       </details>
     </section>
   `);
@@ -86,6 +87,8 @@ export function mountRail(root: HTMLElement) {
   speed.value = String(state.tuning.speed); bounce.value = String(state.tuning.bounce);
   speed.oninput = () => update((s) => { s.tuning.speed = +speed.value; });
   bounce.oninput = () => update((s) => { s.tuning.bounce = +bounce.value; });
+  const persist = $<HTMLInputElement>("persist"); persist.value = String(state.tuning.persist);
+  persist.oninput = () => update((s) => { s.tuning.persist = +persist.value; });
 
   // drop anywhere on the page
   const dz = $("drop");

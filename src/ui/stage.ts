@@ -1,5 +1,5 @@
 import { state, update, subscribe, type Destination } from "../core/state";
-import { drawFrame, onFrame, triggerEnter, triggerReact } from "../engine";
+import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii } from "../export/ascii";
 
 const DESTS: { id: Destination; label: string; export: string; asciiLocked?: boolean }[] = [
@@ -9,8 +9,6 @@ const DESTS: { id: Destination; label: string; export: string; asciiLocked?: boo
   { id: "terminal", label: "terminal", export: "get .sh", asciiLocked: true },
 ];
 
-// one offscreen frame per tick, shared by all destinations (px + ascii)
-const frame = document.createElement("canvas");
 
 export function mountStage(root: HTMLElement) {
   root.innerHTML = `
@@ -71,13 +69,12 @@ export function mountStage(root: HTMLElement) {
       url.onchange = () => update((s) => { s.siteUrl = url.value; });
       const fr = context.querySelector<HTMLIFrameElement>("iframe")!;
       if (state.siteUrl) fr.src = state.siteUrl;
+      context.querySelector(".site")!.classList.toggle("framed", !!state.siteUrl);
     }
   }
   subscribe(build); build();
 
   onFrame(() => {
-    frame.width = state.mark.w; frame.height = state.mark.h;
-    drawFrame(frame);
     if (ctxEl.canvas) drawFrame(ctxEl.canvas);
     if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame, ctxEl.cols);
     let asciiSmall: string | null = null;
@@ -95,7 +92,7 @@ const CONTEXT: Record<Destination, (view: string) => string> = {
   header: () => `
     <div class="urlbar"><input id="siteurl" type="url" placeholder="https://your-site.com — see the mark over your real site (if it allows framing)"></div>
     <div class="site">
-      <iframe sandbox="" referrerpolicy="no-referrer"></iframe>
+      <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
         <div class="topbar"><span class="slot" data-w="240" data-h="80" data-cols="40"></span><span class="links">about &nbsp; docs &nbsp; pricing</span></div>
         <div class="body"><div class="ph w60"></div><div class="ph w90"></div><div class="ph w40"></div></div>

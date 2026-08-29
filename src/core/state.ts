@@ -16,18 +16,19 @@ export interface Mark {
 export interface State {
   mark: Mark;
   moves: { enter: string; react: string };
-  tuning: { speed: number; bounce: number };
+  tuning: { speed: number; bounce: number; persist: number };
   dest: Destination;
   view: Record<Destination, View>;
   siteUrl: string;
 }
 
-export const FONTS = ["Archivo Black", "Anton", "Monoton", "Bungee", "Rubik Mono One", "Space Mono"];
+export const FONTS = ["Archivo Black", "Anton", "Monoton", "Bungee", "Rubik Mono One", "Space Mono",
+  "Bebas Neue", "Righteous", "Press Start 2P", "Abril Fatface", "Lobster", "Orbitron", "Permanent Marker", "Black Ops One", "Fredoka", "Playfair Display"];
 
 export const state: State = {
   mark: { text: "IDENT", font: FONTS[0], mode: "fill", fg: "#ffffff", bg: "transparent", image: null, w: 512, h: 192 },
   moves: { enter: "punch", react: "wobble" },
-  tuning: { speed: 1, bounce: 0.5 },
+  tuning: { speed: 1, bounce: 0.5, persist: 0.6 },
   dest: "header",
   view: { header: "px", "404": "ascii", readme: "px", terminal: "ascii" },
   siteUrl: "",
