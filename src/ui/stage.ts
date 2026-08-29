@@ -122,6 +122,12 @@ export function mountStage(root: HTMLElement) {
       ctxEl.pre.textContent = canvasToAscii(stageFrame, undefined, g);
       const w = g.cols + "ch"; if (ctxEl.pre.style.width !== w) ctxEl.pre.style.width = w;
     }
+    // the fake site's header takes the mark's bg (a real framed site keeps its own)
+    if (state.dest === "header" && !state.siteUrl) {
+      const bar = context.querySelector<HTMLElement>(".fakepage .topbar");
+      const bg = state.mark.bg === "transparent" ? "" : state.mark.bg;
+      if (bar && bar.style.background !== bg) bar.style.background = bg;
+    }
     // the 404 page takes the mark's colors: fg for all its text, bg for the whole page (black when none)
     if (state.dest === "404") {
       const pg = context.querySelector<HTMLElement>(".page404");
