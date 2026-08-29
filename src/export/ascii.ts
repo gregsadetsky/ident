@@ -15,16 +15,23 @@ export function pixelsToAscii(d: Uint8ClampedArray | Uint8Array, cols: number, r
   return lines.join("\n");
 }
 
-// rows follow the ~2:1 glyph aspect
+// one character cell stands for CELL x 2*CELL pixels of the mark, so a bigger mark
+// takes more characters (and a wider one more columns), never fewer.
+export const CELL = 6;
+export function asciiGrid(width: number, height: number): { cols: number; rows: number } {
+  return { cols: Math.max(1, Math.round(width / CELL)), rows: Math.max(1, Math.round(height / (CELL * 2))) };
+}
+
+// fixed column count (thumbnails): rows follow the ~2:1 glyph aspect
 export function asciiRows(width: number, height: number, cols: number): number {
   return Math.max(1, Math.round((height / width) * cols * 0.5));
 }
 
-export function canvasToAscii(src: HTMLCanvasElement, cols: number): string {
-  const rows = asciiRows(src.width, src.height, cols);
+export function canvasToAscii(src: HTMLCanvasElement, cols?: number): string {
+  const g = cols ? { cols, rows: asciiRows(src.width, src.height, cols) } : asciiGrid(src.width, src.height);
   const tmp = document.createElement("canvas");
-  tmp.width = cols; tmp.height = rows;
+  tmp.width = g.cols; tmp.height = g.rows;
   const ctx = tmp.getContext("2d")!;
-  ctx.drawImage(src, 0, 0, cols, rows);
-  return pixelsToAscii(ctx.getImageData(0, 0, cols, rows).data, cols, rows);
+  ctx.drawImage(src, 0, 0, g.cols, g.rows);
+  return pixelsToAscii(ctx.getImageData(0, 0, g.cols, g.rows).data, g.cols, g.rows);
 }

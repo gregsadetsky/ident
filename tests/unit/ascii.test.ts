@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pixelsToAscii, asciiRows } from "../../src/export/ascii";
+import { pixelsToAscii, asciiRows, asciiGrid } from "../../src/export/ascii";
 
 function px(cols: number, rows: number, fill: (x: number, y: number) => [number, number, number, number]) {
   const d = new Uint8ClampedArray(cols * rows * 4);
@@ -23,7 +23,13 @@ describe("ascii", () => {
     expect(out).toMatch(/^[ .:\-=+*#%@]*$/);
     expect(out[0]).toBe(" "); expect(out[9]).toBe("@");
   });
-  it("rows follow a 2:1 glyph aspect", () => {
+  it("grid grows with the mark in both directions", () => {
+    const a = asciiGrid(512, 192), wide = asciiGrid(1024, 192), tall = asciiGrid(512, 384);
+    expect(wide.cols).toBeGreaterThan(a.cols); expect(wide.rows).toBe(a.rows);
+    expect(tall.rows).toBeGreaterThan(a.rows); expect(tall.cols).toBe(a.cols);
+    expect(asciiGrid(1, 1)).toEqual({ cols: 1, rows: 1 });
+  });
+  it("thumbnail rows follow a 2:1 glyph aspect", () => {
     expect(asciiRows(512, 192, 64)).toBe(12);
     expect(asciiRows(100, 100, 1)).toBe(1);
   });

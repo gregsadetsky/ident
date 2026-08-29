@@ -48,7 +48,7 @@ export function mountStage(root: HTMLElement) {
   }
   tgl.querySelectorAll<HTMLButtonElement>("button").forEach((b) => b.onclick = () => update((s) => { s.view[s.dest] = b.dataset.v as "px" | "ascii"; }));
 
-  let ctxEl: { canvas?: HTMLCanvasElement; pre?: HTMLPreElement; cols: number } = { cols: 60 };
+  let ctxEl: { canvas?: HTMLCanvasElement; pre?: HTMLPreElement } = {};
 
   // rebuild the context only when what it shows changes; mark edits must not reload an iframe
   let built = "";
@@ -71,7 +71,7 @@ export function mountStage(root: HTMLElement) {
     context.className = "context " + d.id;
     context.innerHTML = CONTEXT[d.id](view);
     const slot = context.querySelector<HTMLElement>(".slot")!;
-    ctxEl = { cols: +(slot.dataset.cols || 60) };
+    ctxEl = {};
     if (view === "px") {
       const c = document.createElement("canvas");
       c.width = state.mark.w; c.height = state.mark.h;
@@ -98,7 +98,7 @@ export function mountStage(root: HTMLElement) {
       if (ctxEl.canvas.width !== state.mark.w || ctxEl.canvas.height !== state.mark.h) { ctxEl.canvas.width = state.mark.w; ctxEl.canvas.height = state.mark.h; }
       drawFrame(ctxEl.canvas);
     }
-    if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame, ctxEl.cols);
+    if (ctxEl.pre) ctxEl.pre.textContent = canvasToAscii(frame);
     let asciiSmall: string | null = null;
     for (const d of DESTS) {
       const t = thumbs.get(d.id)!;
@@ -116,24 +116,33 @@ const CONTEXT: Record<Destination, (view: string) => string> = {
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
-        <div class="topbar"><span class="slot" data-cols="40"></span><span class="links">about &nbsp; docs &nbsp; pricing</span></div>
-        <div class="body"><div class="ph w60"></div><div class="ph w90"></div><div class="ph w40"></div></div>
+        <div class="topbar"><span class="slot"></span><span class="links">about &nbsp; docs &nbsp; pricing</span></div>
+        <div class="body">
+          <h2>Ship faster with less.</h2>
+          <p>A tiny toolkit for teams who would rather build than configure. Free for individuals.</p>
+          <span class="btn">Get started</span>
+          <div class="cols">
+            <div><b>Fast</b><br>Cold start under a second.</div>
+            <div><b>Small</b><br>No dependencies, one file.</div>
+            <div><b>Yours</b><br>Self-host it anywhere.</div>
+          </div>
+        </div>
       </div>
     </div>`,
   "404": () => `
     <div class="page404">
-      <span class="slot" data-cols="72"></span>
+      <span class="slot"></span>
       <p>404 — page not found · <a href="#">go home</a></p>
     </div>`,
   readme: () => `
     <div class="gh">
       <img src="/github-readme.png" alt="">
-      <span class="slot" data-cols="90"></span>
+      <span class="slot"></span>
     </div>`,
   terminal: () => `
     <div class="term">
       <div class="termbar"><i></i><i></i><i></i></div>
-      <div class="termbody"><div>$ npx you</div><span class="slot" data-cols="64"></span><div>$ <span class="cursor">_</span></div></div>
+      <div class="termbody"><div>$ npx yourcli</div><span class="slot"></span><div>$ <span class="cursor">_</span></div></div>
     </div>`,
 };
 
