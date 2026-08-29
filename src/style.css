@@ -56,7 +56,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .fakepage .slot canvas { height: 56px; width: auto; }
 .fakepage .slot pre { font-size: 5px; line-height: 5px; color: #eee; }
 .fakepage .body { padding: 40px 48px; font-family: system-ui, sans-serif; color: #9a9a9a; max-width: 720px; }
-.fakepage h2 { font-size: 34px; margin: 0 0 10px; color: #8a8a8a; }
+.fakepage h2 { font: 700 34px system-ui, sans-serif; text-transform: none; letter-spacing: 0; margin: 0 0 10px; color: #8a8a8a; }
 .fakepage p { font-size: 16px; margin: 0 0 18px; }
 .fakepage .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; background: #ddd; color: #888; font-size: 14px; }
 .fakepage .cols { display: flex; gap: 32px; margin-top: 40px; font-size: 14px; line-height: 1.5; }
