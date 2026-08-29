@@ -23,7 +23,6 @@ export function mountStage(root: HTMLElement) {
   root.innerHTML = `
     <nav class="tabs"></nav>
     <header class="stagehead">
-      <span class="editing"></span>
       <span class="grow"></span>
       <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
       <span class="exports"></span>
@@ -31,7 +30,6 @@ export function mountStage(root: HTMLElement) {
     <div class="context"></div>
   `;
   const tabs = root.querySelector<HTMLElement>(".tabs")!;
-  const editing = root.querySelector<HTMLElement>(".editing")!;
   const tgl = root.querySelector<HTMLElement>(".tgl")!;
   const exports = root.querySelector<HTMLElement>(".exports")!;
   const context = root.querySelector<HTMLElement>(".context")!;
@@ -60,7 +58,6 @@ export function mountStage(root: HTMLElement) {
     const key = `${d.id}|${view}|${state.siteUrl}`;
     if (key === built) return;
     built = key;
-    editing.textContent = `editing: ${d.label}`;
     exports.innerHTML = "";
     for (const ex of d.exports) {
       const b = document.createElement("button"); b.className = "export"; b.textContent = ex.label + " ↓";

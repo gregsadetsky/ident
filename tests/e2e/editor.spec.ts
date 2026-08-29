@@ -12,7 +12,7 @@ test("loads, all four destinations render, no page errors", async ({ page }) => 
   await expect(page.locator(".tab")).toHaveCount(4);
   for (const id of ["header", "404", "readme", "terminal"]) {
     await page.click(`.tab[data-id="${id}"]`);
-    await expect(page.locator(".editing")).toContainText(id === "header" ? "site header" : id);
+    await expect(page.locator(`.tab[data-id="${id}"]`)).toHaveClass(/on/);
     await expect(page.locator(".context .slot")).toBeVisible();
   }
   expect(errs).toEqual([]);
