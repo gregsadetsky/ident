@@ -3,6 +3,7 @@ import { drawFrame, frame, frameNoHover, frameSize, markRect, onFrame, triggerEn
 import { canvasToAscii, asciiGrid } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
+import { downloadEmbed, download404 } from "../export/embed";
 import { makeFloating } from "./floating";
 import { normalizeSiteUrl } from "../core/url";
 
@@ -10,8 +11,8 @@ import { normalizeSiteUrl } from "../core/url";
 interface Export { label: string; run?: () => void }
 interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?: boolean }
 const DESTS: Dest[] = [
-  { id: "header", label: "site header", exports: [{ label: "get embed" }] },
-  { id: "404", label: "404", exports: [{ label: "get .html" }] },
+  { id: "header", label: "site header", exports: [{ label: "get embed .html", run: downloadEmbed }] },
+  { id: "404", label: "404", exports: [{ label: "get 404.html", run: download404 }] },
   { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") },
     { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }] },
   { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true },

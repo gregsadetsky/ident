@@ -71,6 +71,13 @@ export class Warp {
     }
   }
 
+  // wipe phosphor persistence (both ping-pong buffers)
+  clear() {
+    const gl = this.gl;
+    for (const f of this.fbo) { gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
   render(d: Deflect, time: number, decay: number) {
     const gl = this.gl, u = this.u;
     const dst = this.ping, src = 1 - this.ping; this.ping = src;

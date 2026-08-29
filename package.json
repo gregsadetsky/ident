@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && npm run build:embed && vite build",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:embed": "vite build -c vite.embed.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

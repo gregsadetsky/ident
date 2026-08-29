@@ -63,6 +63,7 @@ export function markRect() {
 
 // renders one frame at rest with no persistence into target (the live loop overwrites it next tick)
 export function renderStill(target: HTMLCanvasElement) {
+  warp.clear();
   warp.render(REST, 0, 0);
   drawFrame(target);
 }
@@ -72,7 +73,7 @@ export function renderStill(target: HTMLCanvasElement) {
 export function renderSequence(seconds: number, fps: number, each: (frame: HTMLCanvasElement, i: number) => void) {
   const tmp = document.createElement("canvas");
   const fs = frameSize(); tmp.width = fs.w; tmp.height = fs.h;
-  warp.render(REST, 0, 0); // clear persistence
+  warp.clear();
   const n = Math.round(seconds * fps);
   for (let i = 0; i < n; i++) {
     const t = i / fps;
