@@ -9,3 +9,4 @@
 - gif/mp4 export only verified in chromium (webcodecs coverage differs in safari/firefox)
 - share urls + remix (serialize state, db) - not started
 - favicon / opengraph - punted
+- to be tested: dropping an svg and a png onto the page (untested so far)

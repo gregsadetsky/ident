@@ -23,7 +23,6 @@ function loadImage(f: File) {
 export function mountRail(root: HTMLElement) {
   root.insertAdjacentHTML("beforeend", `
     <section>
-      <h2>Mark</h2>
       <div class="drop" id="drop">Drop an svg / png anywhere<br><small>or type below</small></div>
       <input id="text" type="text" maxlength="24" spellcheck="false">
       <select id="font"></select>
@@ -39,10 +38,9 @@ export function mountRail(root: HTMLElement) {
       </div>
     </section>
     <section>
-      <h2>Move</h2>
-      <div class="sub">enter <button class="play" id="playEnter" title="replay">▶</button></div>
+      <div class="sub">enter</div>
       <div id="enter"></div>
-      <div class="sub">react <small>(on hover)</small> <button class="play" id="playReact" title="replay">▶</button></div>
+      <div class="sub">on hover</div>
       <div id="react"></div>
       <details>
         <summary>fine tune</summary>
@@ -82,7 +80,6 @@ export function mountRail(root: HTMLElement) {
 
   $("enter").replaceWith(chips(ENTER_MOVES, () => state.moves.enter, (v) => { state.moves.enter = v; }, triggerEnter));
   $("react").replaceWith(chips(REACT_MOVES, () => state.moves.react, (v) => { state.moves.react = v; }, triggerReact));
-  $("playEnter").onclick = triggerEnter; $("playReact").onclick = triggerReact;
 
   const speed = $<HTMLInputElement>("speed"), bounce = $<HTMLInputElement>("bounce");
   speed.value = String(state.tuning.speed); bounce.value = String(state.tuning.bounce);
