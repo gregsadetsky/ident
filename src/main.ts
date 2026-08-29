@@ -1,17 +1,16 @@
 import "./style.css";
-import { asciiBox } from "./exports/ascii";
+import { mountRail } from "./ui/rail";
+import { mountStage } from "./ui/stage";
+import { triggerEnter } from "./engine";
+import { state, update } from "./core/state";
 
-const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `
-  <main>
-    <h1>ident</h1>
-    <textarea id="input" rows="4" placeholder="Your name, handle, anything"></textarea>
-    <pre id="ascii"></pre>
-  </main>
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+  <aside id="rail"><h1>IDENT</h1></aside>
+  <main id="stage"></main>
 `;
+mountRail(document.querySelector("#rail")!);
+mountStage(document.querySelector("#stage")!);
 
-const input = app.querySelector<HTMLTextAreaElement>("#input")!;
-const out = app.querySelector<HTMLPreElement>("#ascii")!;
-const render = () => { out.textContent = asciiBox(input.value || "ident"); };
-input.addEventListener("input", render);
-render();
+// re-render the mark once web fonts arrive, then play the enter move
+document.fonts.ready.then(() => { update(() => {}); triggerEnter(); });
+document.fonts.load(`40px "${state.mark.font}"`).then(() => update(() => {}));
