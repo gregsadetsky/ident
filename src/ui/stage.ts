@@ -67,7 +67,10 @@ export function mountStage(root: HTMLElement) {
     const url = context.querySelector<HTMLInputElement>("#siteurl");
     if (url) {
       url.value = state.siteUrl;
-      url.onchange = () => update((s) => { s.siteUrl = url.value; });
+      url.onchange = () => update((s) => {
+        const v = url.value.trim();
+        s.siteUrl = v && !/^https?:\/\//i.test(v) ? "https://" + v : v;
+      });
       const fr = context.querySelector<HTMLIFrameElement>("iframe")!;
       if (state.siteUrl) fr.src = state.siteUrl;
       context.querySelector(".site")!.classList.toggle("framed", !!state.siteUrl);
@@ -92,7 +95,7 @@ export function mountStage(root: HTMLElement) {
 
 const CONTEXT: Record<Destination, (view: string) => string> = {
   header: () => `
-    <div class="urlbar"><input id="siteurl" type="url" placeholder="https://your-site.com"></div>
+    <div class="urlbar"><input id="siteurl" type="text" placeholder="https://your-site.com"></div>
     <div class="site">
       <iframe sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
       <div class="fakepage">
