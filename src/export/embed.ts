@@ -2,6 +2,7 @@ import { state } from "../core/state";
 import type { IdentConfig } from "../embed/runtime";
 import { download } from "./video";
 import { zipSync, strToU8 } from "fflate";
+import { exportName } from "./filename";
 
 // the editor state, serialized for ident.mount (dropped logo -> data url)
 export function embedConfig(): IdentConfig {
@@ -47,7 +48,7 @@ a { color: inherit; }`);
 async function bundle(name: string, html: string, htmlName: string) {
   const js = await fetch(embedScriptUrl()).then((r) => { if (!r.ok) throw new Error("could not fetch " + embedScriptUrl()); return r.text(); });
   const zip = zipSync({ [htmlName]: strToU8(html), "ident.js": strToU8(js), "readme.txt": strToU8(`ident ${name}\n\n${htmlName}  open it, or copy the two script tags into your own page\nident.js    the runtime (also served at ${embedScriptUrl()})\n\napi: const h = ident.mount(el, config)\n  h.enter()        replay the enter move from rest\n  h.react()        play the hover move\n  h.trigger(name)  play any move by name on top of what's running (punch, flag, roll-in, fly-in, squash, spin, psycho, keystone, wobble)\n  h.destroy()      stop and remove\n`) }, { level: 6 });
-  download(new Blob([zip as BlobPart], { type: "application/zip" }), `ident-${name}.zip`);
+  download(new Blob([zip as BlobPart], { type: "application/zip" }), exportName(`${state.mark.text} ${name}`, "zip"));
 }
 export function downloadEmbed() { return bundle("embed", embedHtml(), "index.html").catch((e) => alert(String(e))); }
 export function download404() { return bundle("404", html404(state.view["404"] === "ascii"), "404.html").catch((e) => alert(String(e))); }

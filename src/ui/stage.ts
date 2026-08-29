@@ -5,6 +5,7 @@ import { downloadStill } from "../export/still";
 import { download, encodeGif } from "../export/video";
 import { downloadEmbed, download404 } from "../export/embed";
 import { downloadTerminalBundle } from "../export/frames";
+import { exportName } from "../export/filename";
 import { makeFloating } from "./floating";
 import { normalizeSiteUrl } from "../core/url";
 
@@ -15,7 +16,7 @@ const GITHUB_MARK = `<svg class="gh-mark" viewBox="0 0 16 16" width="12" height=
 const DESTS: Dest[] = [
   { id: "header", label: "site header", exports: [{ label: "get embed .zip", run: downloadEmbed }] },
   { id: "404", label: "404", tab: "404.html", exports: [{ label: "get 404 .zip", run: download404 }] },
-  { id: "readme", label: "readme", tab: `${GITHUB_MARK} README.md`, exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") }] },
+  { id: "readme", label: "readme", tab: `${GITHUB_MARK} README.md`, exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), exportName(state.mark.text, "gif")) }] },
   { id: "terminal", label: "terminal", tab: "&gt; terminal", exports: [{ label: "get terminal .zip", run: downloadTerminalBundle }], asciiLocked: true },
 ];
 

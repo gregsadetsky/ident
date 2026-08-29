@@ -66,12 +66,12 @@ test("readme exports: png and gif download with the right magic bytes", async ({
   await page.goto("/");
   await page.click('.tab[data-id="readme"]');
   const magic: Record<string, [string, string]> = {
-    "get still .png": ["ident.png", "89504e47"],
-    "get .gif": ["ident.gif", "47494638"],
+    "get still .png": ["png", "89504e47"],
+    "get .gif": ["gif", "47494638"],
   };
   for (const [label, [name, hex]] of Object.entries(magic)) {
     const [dl] = await Promise.all([page.waitForEvent("download"), page.click(`text=${label}`)]);
-    expect(dl.suggestedFilename()).toBe(name);
+    expect(dl.suggestedFilename()).toMatch(new RegExp(`^ident-acme-\\d{10}\\.${name}$`));
     const stream = await dl.createReadStream();
     const chunks: Buffer[] = []; for await (const c of stream) chunks.push(c as Buffer);
     const buf = Buffer.concat(chunks);

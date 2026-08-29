@@ -2,6 +2,8 @@ import { zipSync, strToU8 } from "fflate";
 import { renderSequence, frameSize } from "../engine";
 import { canvasToAscii, asciiGrid } from "./ascii";
 import { CLIP, download } from "./video";
+import { state } from "../core/state";
+import { exportName } from "./filename";
 
 export interface AsciiClip { cols: number; rows: number; fps: number; frames: string[] }
 export const SEP = "=====";
@@ -97,5 +99,5 @@ export function downloadTerminalBundle() {
     "play.js": strToU8(PLAY_JS),
     "readme.txt": strToU8(terminalReadme(clip)),
   }, { level: 6 });
-  download(new Blob([zip as BlobPart], { type: "application/zip" }), "ident-terminal.zip");
+  download(new Blob([zip as BlobPart], { type: "application/zip" }), exportName(state.mark.text + " terminal", "zip"));
 }
