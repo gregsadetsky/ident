@@ -25,6 +25,7 @@ export function mountRail(root: HTMLElement) {
     <section>
       <h2 class="big tight">Enter logo text</h2>
       <input id="text" type="text" maxlength="24" spellcheck="false">
+      <h2 class="tight sub2">Text options</h2>
       <select id="font"></select>
       <div id="mode"></div>
       <div id="shape"></div>
@@ -36,13 +37,10 @@ export function mountRail(root: HTMLElement) {
       <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
     <section>
-      <h2 class="big tight">Or upload your logo</h2>
-      <div class="drop" id="drop">Drop an SVG / PNG</div>
-    </section>
-    <section>
-      <h2 class="tight">On load</h2>
+      <h2 class="big tight">Animation options</h2>
+      <h2 class="tight sub2">On load</h2>
       <div id="enter"></div>
-      <h2 id="hoverLabel" class="tight gap">On hover</h2>
+      <h2 id="hoverLabel" class="tight gap sub2">On hover</h2>
       <div id="react"></div>
       <details>
         <summary>fine tune</summary>
@@ -105,7 +103,8 @@ export function mountRail(root: HTMLElement) {
   persist.onchange = triggerEnter;
 
   // drop anywhere on the page
-  const dz = $("drop");
+  // upload ui is currently hidden (kept: drag-drop anywhere still works, the drop box isn't shown)
+  const dz = document.createElement("div"); dz.id = "drop"; dz.hidden = true; root.appendChild(dz);
   document.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("over"); });
   document.addEventListener("dragleave", () => dz.classList.remove("over"));
   document.addEventListener("drop", (e) => {
