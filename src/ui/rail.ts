@@ -37,10 +37,10 @@ export function mountRail(root: HTMLElement) {
       <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
     <section>
-      <h2 class="big tight">Animation options</h2>
-      <h2 class="tight sub2">On load</h2>
+      <h2 class="tight">Animation options</h2>
+      <h3 class="tight sub2">On load</h3>
       <div id="enter"></div>
-      <h2 id="hoverLabel" class="tight gap sub2">On hover</h2>
+      <h3 id="hoverLabel" class="tight gap sub2">On hover</h3>
       <div id="react"></div>
       <details>
         <summary>fine tune</summary>
