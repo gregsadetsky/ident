@@ -22,6 +22,7 @@ const DESTS: Dest[] = [
 
 export function mountStage(root: HTMLElement) {
   root.innerHTML = `
+    <h2 class="previews">Previews</h2>
     <nav class="tabs"></nav>
     <header class="stagehead">
       <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
