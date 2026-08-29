@@ -10,4 +10,4 @@
 - share urls + remix (serialize state, db) - not started
 - favicon / opengraph - punted
 - to be tested: dropping an svg and a png onto the page (untested so far)
-- test absolutely all export options end to end in their real destination: readme png vs gif vs mp4 on github (which actually render/animate), embed on a real site, 404.html in a real server, .sh in bash/zsh/iterm/terminal.app
+- test absolutely all export options end to end in their real destination: readme: png + gif confirmed working on github, mp4 confirmed not (2026-08-29); still to test: embed on a real site, 404.html in a real server, .sh in bash/zsh/iterm/terminal.app

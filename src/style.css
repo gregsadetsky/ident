@@ -18,7 +18,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 #rail details label { display: flex; gap: 8px; margin-top: 6px; }
 #rail details label input { flex: 1; }
 #rail details { margin-top: 16px; }
-#rail summary { cursor: pointer; color: #666; }
+#rail summary { cursor: pointer; color: #666; user-select: none; }
 #rail label { user-select: none; }
 .sub { display: flex; align-items: center; gap: 6px; color: #666; }
 .drop { border: 1.5px dashed #999; border-radius: 6px; color: #888; padding: 14px; text-align: center; cursor: pointer; }

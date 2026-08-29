@@ -4,23 +4,9 @@ make identification exports - videos, gifs, and ascii that works in bash and 404
 
 lives at ident.greg.technology, deployed with disco.
 
-## does this animate on github?
+![acme gif](readme-assets/ident.gif)
 
-still png:
-
-![ident still](readme-assets/ident.png)
-
-gif:
-
-![ident gif](readme-assets/ident.gif)
-
-mp4 (via img tag, probably won't render):
-
-![ident mp4](readme-assets/ident.mp4)
-
-mp4 (via video tag):
-
-<video src="readme-assets/ident.mp4" width="512" autoplay loop muted></video>
+(on github: png and gif render, mp4 does not - confirmed 2026-08-29)
 
 ## dev
 
