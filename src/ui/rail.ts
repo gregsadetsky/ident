@@ -23,7 +23,7 @@ function loadImage(f: File) {
 export function mountRail(root: HTMLElement) {
   root.insertAdjacentHTML("beforeend", `
     <section>
-      <h2>Make your logo</h2>
+      <h2 class="big">Make your logo</h2>
       <div class="drop" id="drop">Drop an svg / png<br><small>or type below</small></div>
       <input id="text" type="text" maxlength="24" spellcheck="false">
       <select id="font"></select>
