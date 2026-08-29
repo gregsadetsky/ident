@@ -23,6 +23,7 @@ function loadImage(f: File) {
 export function mountRail(root: HTMLElement) {
   root.insertAdjacentHTML("beforeend", `
     <section>
+      <h2>Make your logo</h2>
       <div class="drop" id="drop">Drop an svg / png<br><small>or type below</small></div>
       <input id="text" type="text" maxlength="24" spellcheck="false">
       <select id="font"></select>
@@ -36,9 +37,9 @@ export function mountRail(root: HTMLElement) {
       <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
     <section>
-      <div class="sub">on load</div>
+      <h2>On load</h2>
       <div id="enter"></div>
-      <div class="sub" id="hoverLabel">on hover</div>
+      <h2 id="hoverLabel">On hover</h2>
       <div id="react"></div>
       <details>
         <summary>fine tune</summary>
