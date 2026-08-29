@@ -4,7 +4,7 @@
 import { Warp } from "../gl/warp";
 import { envelope } from "../core/envelope";
 import { MOVES, chord } from "../core/presets";
-import { renderMark } from "../mark/render";
+import { renderMark, measureMark } from "../mark/render";
 import { fontCssUrl } from "../core/fonts";
 import { pixelsToAscii, asciiGrid } from "../export/ascii";
 import type { Mark } from "../core/state";
@@ -25,12 +25,18 @@ const RES = 2, BLEED = 1.5;
 
 export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
   const mark: Mark = { ...cfg.mark, image: null };
+  const measure = () => { if (!cfg.mark.w || !cfg.mark.h) Object.assign(mark, measureMark(mark)); };
+  measure();
   const warp = new Warp();
   const source = document.createElement("canvas");
   const out = document.createElement("canvas");
-  const fs = { w: Math.round(mark.w * BLEED), h: Math.round(mark.h * BLEED) };
-  out.width = fs.w * RES; out.height = fs.h * RES;
-  Object.assign(el.style, { position: el.style.position || "relative", width: mark.w + "px", height: mark.h + "px", display: el.style.display || "inline-block" });
+  const fs = { w: 0, h: 0 };
+  const layout = () => {
+    fs.w = Math.round(mark.w * BLEED); fs.h = Math.round(mark.h * BLEED);
+    out.width = fs.w * RES; out.height = fs.h * RES;
+    Object.assign(el.style, { position: el.style.position || "relative", width: mark.w + "px", height: mark.h + "px", display: el.style.display || "inline-block" });
+  };
+  layout();
   Object.assign(out.style, { position: "absolute", left: "-25%", top: "-25%", width: "150%", height: "150%", pointerEvents: "none" });
   el.appendChild(out);
   const ctx = out.getContext("2d")!;
@@ -46,7 +52,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
 
   let triggered: { move: string; at: number }[] = [];
   const t0 = performance.now();
-  const rebuild = () => { renderMark(mark, source, RES, BLEED); warp.setSource(source); };
+  const rebuild = () => { measure(); layout(); renderMark(mark, source, RES, BLEED); warp.setSource(source); };
   rebuild();
 
   // fonts: load the face, re-render when it arrives
