@@ -34,7 +34,9 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
   const layout = () => {
     fs.w = Math.round(mark.w * BLEED); fs.h = Math.round(mark.h * BLEED);
     out.width = fs.w * RES; out.height = fs.h * RES;
-    Object.assign(el.style, { position: el.style.position || "relative", width: mark.w + "px", height: mark.h + "px", display: el.style.display || "inline-block" });
+    // px: the element is the mark's rect (canvas overflows it). ascii: the element wraps the <pre>
+    Object.assign(el.style, { position: el.style.position || "relative", display: el.style.display || "inline-block" },
+      cfg.ascii ? { width: "auto", height: "auto" } : { width: mark.w + "px", height: mark.h + "px" });
   };
   layout();
   Object.assign(out.style, { position: "absolute", left: "-25%", top: "-25%", width: "150%", height: "150%", pointerEvents: "none" });
@@ -46,7 +48,6 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
     pre = document.createElement("pre");
     const g = asciiGrid(fs.w, fs.h);
     Object.assign(pre.style, { margin: "0", whiteSpace: "pre", fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: "10px", lineHeight: "10px", width: g.cols + "ch", color: cfg.color || "inherit", background: cfg.background || "" });
-    Object.assign(el.style, { width: "auto", height: "auto" });
     el.appendChild(pre);
   }
 
@@ -83,6 +84,7 @@ export function mount(el: HTMLElement, cfg: IdentConfig): IdentHandle {
     warp.render(d, (now - t0) / 1000, cfg.tuning.persist);
     if (pre) {
       const g = asciiGrid(fs.w, fs.h);
+      const w = g.cols + "ch"; if (pre.style.width !== w) pre.style.width = w;
       const t = document.createElement("canvas"); t.width = g.cols; t.height = g.rows;
       const tc = t.getContext("2d")!; tc.drawImage(warp.canvas, 0, 0, g.cols, g.rows);
       pre.textContent = pixelsToAscii(tc.getImageData(0, 0, g.cols, g.rows).data, g.cols, g.rows);

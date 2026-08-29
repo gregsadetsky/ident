@@ -54,6 +54,10 @@ test("404 zip: ascii page renders colored text, no canvas", async ({ page, brows
   expect(txt).toMatch(/^[ .:\-=+*#%@\n]*$/);
   expect(await q.locator("#ident canvas").count()).toBe(0);
   expect(await q.locator("#ident pre").evaluate((e) => getComputedStyle(e).color)).toBe("rgb(255, 77, 0)");
+  // the element wraps the pre, and both sit centred on the page
+  const [el, pre, vw] = await q.evaluate(() => { const r = (s: string) => document.querySelector(s)!.getBoundingClientRect(); return [r("#ident"), r("#ident pre"), innerWidth]; });
+  expect(Math.abs(el.width - pre.width)).toBeLessThan(2);
+  expect(Math.abs((pre.left + pre.width / 2) - vw / 2)).toBeLessThan(3);
   expect(errs).toEqual([]);
   await q.close();
 });
