@@ -36,7 +36,7 @@ export function mountRail(root: HTMLElement) {
       <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
     <section>
-      <h2 class="big">Or upload your logo</h2>
+      <h2 class="big tight">Or upload your logo</h2>
       <div class="drop" id="drop">Drop an SVG / PNG</div>
     </section>
     <section>
