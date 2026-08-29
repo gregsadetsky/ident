@@ -23,8 +23,10 @@ function loadImage(f: File) {
 export function mountRail(root: HTMLElement) {
   root.insertAdjacentHTML("beforeend", `
     <section>
-      <h2 class="big tight">Enter logo text</h2>
-      <input id="text" type="text" maxlength="24" spellcheck="false">
+      <div class="cta">
+        <h2 class="big tight">Enter logo text ↓</h2>
+        <input id="text" type="text" maxlength="24" spellcheck="false">
+      </div>
       <h2 class="tight sub2">Text options</h2>
       <select id="font"></select>
       <div id="mode"></div>

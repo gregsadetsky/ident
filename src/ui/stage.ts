@@ -22,15 +22,15 @@ const DESTS: Dest[] = [
 
 export function mountStage(root: HTMLElement) {
   root.innerHTML = `
-    <div class="context"></div>
-    <footer class="dock">
+    <header class="dock">
       <div class="dockbar">
         <h2 class="previews">Previews</h2>
         <span class="tgl"><button data-v="px">px</button><button data-v="ascii">ascii</button></span>
         <span class="exports"></span>
       </div>
       <nav class="tabs"></nav>
-    </footer>
+    </header>
+    <div class="context"></div>
   `;
   const tabs = root.querySelector<HTMLElement>(".tabs")!;
   const tgl = root.querySelector<HTMLElement>(".tgl")!;

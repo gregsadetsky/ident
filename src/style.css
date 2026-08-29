@@ -16,7 +16,9 @@ h2.gap, h3.gap { margin-top: 12px; }
 
 #rail { padding: 16px; border-right: 1px solid var(--line); overflow-y: auto; display: flex; flex-direction: column; gap: 32px; }
 #rail section { display: flex; flex-direction: column; gap: 8px; }
-#rail #text { box-shadow: 0 0 0 3px var(--accent); }
+.cta { background: var(--accent); border-radius: 8px; padding: 12px 12px 12px; box-shadow: 0 3px 0 var(--ink); margin-bottom: 4px; }
+.cta h2 { color: var(--ink); margin-bottom: 10px; }
+#rail #text { font-size: 16px; font-weight: 700; padding: 8px 10px; border-width: 2px; border-radius: 6px; }
 #rail input[type=text], #rail select, #rail input[type=number], #rail input[type=url] {
   font: inherit; padding: 5px 7px; border: 1.5px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); width: 100%; box-sizing: border-box;
 }
@@ -40,7 +42,7 @@ h2.gap, h3.gap { margin-top: 12px; }
 
 #stage { display: flex; flex-direction: column; min-width: 0; }
 /* the dock: always visible under the context, previews + view toggle + downloads */
-.dock { border-top: 1px solid var(--line); background: var(--paper); flex: none; }
+.dock { border-bottom: 1px solid var(--line); background: var(--paper); flex: none; }
 .dockbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px 0; }
 .previews { margin: 0; }
 .tabs { display: flex; gap: 10px; padding: 8px 16px 12px; overflow-x: auto; }
