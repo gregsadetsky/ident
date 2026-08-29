@@ -2,6 +2,7 @@ import { state, update, subscribe, type Destination } from "../core/state";
 import { drawFrame, frame, onFrame, triggerEnter, triggerReact } from "../engine";
 import { canvasToAscii } from "../export/ascii";
 import { downloadStill } from "../export/still";
+import { download, encodeGif, encodeMp4 } from "../export/video";
 
 // exports: label + action (undefined = not built yet)
 interface Export { label: string; run?: () => void }
@@ -10,7 +11,8 @@ interface Dest { id: Destination; label: string; exports: Export[]; asciiLocked?
 const DESTS: Dest[] = [
   { id: "header", label: "site header", exports: [{ label: "get embed" }] },
   { id: "404", label: "404", exports: [{ label: "get .html" }] },
-  { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif" }, { label: "get .mp4" }], loop: true },
+  { id: "readme", label: "readme", exports: [{ label: "get still .png", run: () => downloadStill() }, { label: "get .gif", run: () => download(encodeGif(), "ident.gif") },
+    { label: "get .mp4", run: () => encodeMp4().then((b) => download(b, "ident.mp4"), (e) => alert(String(e))) }], loop: true },
   { id: "terminal", label: "terminal", exports: [{ label: "get .sh" }], asciiLocked: true, loop: true },
 ];
 

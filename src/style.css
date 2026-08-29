@@ -79,3 +79,8 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 /* a real site is loaded: drop the fake chrome, float the mark over the frame */
 .site.framed .topbar { background: transparent; }
 .site.framed .links, .site.framed .body { display: none; }
+
+/* mobile: the editor stays underneath, a full-screen note on top */
+#mobile { display: none; position: fixed; inset: 0; background: var(--paper); padding: 24px; z-index: 10; }
+#mobile p { font-size: 15px; line-height: 1.5; max-width: 100%; overflow-wrap: anywhere; }
+@media (max-width: 800px), (pointer: coarse) and (max-width: 1024px) { #mobile { display: block; } }

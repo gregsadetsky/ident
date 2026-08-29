@@ -42,6 +42,22 @@ export function renderStill(target: HTMLCanvasElement) {
   drawFrame(target);
 }
 
+// deterministic export: the enter move simulated from rest at a fixed dt, persistence
+// accumulated frame by frame. same state -> same frames. the live loop resumes after.
+export function renderSequence(seconds: number, fps: number, each: (frame: HTMLCanvasElement, i: number) => void) {
+  const tmp = document.createElement("canvas");
+  tmp.width = state.mark.w; tmp.height = state.mark.h;
+  warp.render(REST, 0, 0); // clear persistence
+  const n = Math.round(seconds * fps);
+  for (let i = 0; i < n; i++) {
+    const t = i / fps;
+    const d = chord([(MOVES[state.moves.enter] ?? MOVES.none)(envelope(t, state.tuning.speed, state.tuning.bounce), t)]);
+    warp.render(d, t, state.tuning.persist);
+    drawFrame(tmp);
+    each(tmp, i);
+  }
+}
+
 const frames = new Set<() => void>();
 export function onFrame(fn: () => void) { frames.add(fn); return () => frames.delete(fn); }
 function loop() {
