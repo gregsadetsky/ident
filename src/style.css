@@ -12,7 +12,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 #rail input[type=text], #rail select, #rail input[type=number], #rail input[type=url] {
   font: inherit; padding: 5px 7px; border: 1.5px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); width: 100%; box-sizing: border-box;
 }
-#rail input[type=number] { width: 70px; }
+.sizerow { display: flex; gap: 8px; align-items: center; } .sizerow input { flex: 1; } .sizerow output { color: #666; font-size: 11px; white-space: nowrap; }
 #rail .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 #rail input[type=color].off { opacity: .3; }
 #rail label { display: inline-flex; gap: 5px; align-items: center; }
@@ -60,8 +60,10 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .site iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .fakepage { position: absolute; inset: 0; pointer-events: none; }
 .fakepage .topbar { display: flex; align-items: center; gap: 24px; padding: 8px 16px; background: #14141c; color: #ccc; pointer-events: auto; }
-.fakepage .slot { height: 56px; display: inline-flex; align-items: center; }
-.fakepage .slot canvas { height: 84px; width: auto; margin: -14px 0; }
+/* the fake header's mark is the mark's real box; the canvas overflows it by the bleed */
+.fakepage .slot { position: relative; width: var(--mw); height: var(--mh); }
+.fakepage .slot canvas { position: absolute; width: 150%; height: 150%; max-width: none; left: -25%; top: -25%; }
+.fakepage .slot pre { position: absolute; left: 0; top: 0; }
 .fakepage .slot pre { font-size: 5px; line-height: 5px; color: #eee; }
 .fakepage .body { padding: 40px 48px; font-family: system-ui, sans-serif; color: #9a9a9a; max-width: 720px; }
 .fakepage h2 { font: 700 34px system-ui, sans-serif; text-transform: none; letter-spacing: 0; margin: 0 0 10px; color: #8a8a8a; }
@@ -95,9 +97,7 @@ h2 { font: 700 10px ui-monospace, monospace; letter-spacing: 1.5px; text-transfo
 .site.framed .links, .site.framed .body { display: none; }
 .site.framed .topbar { padding: 0; }
 .slot.floating { position: absolute; cursor: move; outline: 1px dashed rgba(255,77,0,.6); outline-offset: 2px; user-select: none; touch-action: none; }
-.slot.floating canvas { position: absolute; width: 150% !important; height: 150% !important; max-width: none; left: -25%; top: -25%; margin: 0 !important; }
-.slot.floating .resize { z-index: 1; }
-.slot.floating .resize { position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px; background: var(--accent); border: 1.5px solid var(--ink); cursor: nwse-resize; }
+.slot.floating canvas { position: absolute; width: 150%; height: 150%; max-width: none; left: -25%; top: -25%; }
 
 /* mobile: the editor stays underneath, a full-screen note on top */
 #mobile { display: none; position: fixed; inset: 0; background: var(--paper); padding: 24px; z-index: 10; }

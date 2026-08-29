@@ -1,7 +1,7 @@
-import { state, subscribe } from "./core/state";
+import { state, subscribe, setMeasure } from "./core/state";
 import { envelope } from "./core/envelope";
 import { MOVES, REST, chord, type Deflect } from "./core/presets";
-import { renderMark } from "./mark/render";
+import { renderMark, measureMark } from "./mark/render";
 import { Warp } from "./gl/warp";
 
 // the static mark is rendered to a 2d canvas once per state change and uploaded as the
@@ -31,6 +31,7 @@ export function triggerEnter() { triggered = []; trigger(state.moves.enter, "ent
 export function triggerReact() { trigger(state.moves.react, "react"); }
 
 function rebuild() { renderMark(state.mark, markCanvas, RES, BLEED); warp.setSource(markCanvas); warpNoHover.setSource(markCanvas); }
+setMeasure(measureMark);
 subscribe(rebuild); rebuild();
 
 export function currentDeflect(now = performance.now(), withReact = true): Deflect {

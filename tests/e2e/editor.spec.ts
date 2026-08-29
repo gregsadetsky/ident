@@ -40,7 +40,7 @@ test("typing changes the mark; ascii is empty for blank text", async ({ page }) 
   expect((await page.locator(".term .slot pre").textContent())!.trim()).toBe("");
 });
 
-test("site url gets https prefixed, iframe loads, mark floats and resizes into the rail", async ({ page }) => {
+test("site url gets https prefixed, iframe loads, mark floats; size slider resizes the box", async ({ page }) => {
   await page.goto("/");
   await page.fill("#siteurl", "example.com");
   await page.press("#siteurl", "Enter");
@@ -52,11 +52,10 @@ test("site url gets https prefixed, iframe loads, mark floats and resizes into t
   await page.mouse.move(r.x + r.width / 2 + 100, r.y + r.height / 2 + 50, { steps: 5 }); await page.mouse.up();
   const r2 = (await slot.boundingBox())!;
   expect(Math.round(r2.x - r.x)).toBe(100); expect(Math.round(r2.y - r.y)).toBe(50);
-  const h = (await page.locator(".slot.floating .resize").boundingBox())!;
-  await page.mouse.move(h.x + 6, h.y + 6); await page.mouse.down();
-  await page.mouse.move(h.x + 6 - 112, h.y + 6 - 42, { steps: 5 }); await page.mouse.up();
-  await expect(page.locator("#w")).toHaveValue("400");
-  await expect(page.locator("#h")).toHaveValue("150");
+  await page.locator("#size").fill("20");
+  const small = (await slot.boundingBox())!;
+  expect(small.width).toBeLessThan(r2.width); expect(small.height).toBeLessThan(r2.height);
+  await expect(page.locator("#sizeOut")).toContainText("20px");
   // editing the mark must not reload the iframe
   await page.evaluate(() => { (window as any).__fr = document.querySelector("iframe"); });
   await page.fill("#text", "HELLO");

@@ -114,6 +114,8 @@ export function mountStage(root: HTMLElement) {
   const thumbCrop = document.createElement("canvas");
   onFrame(() => {
     const stageFrame = frameFor(state.dest);
+    const slotEl = ctxEl.canvas?.parentElement ?? ctxEl.pre?.parentElement;
+    if (slotEl) { const mw = state.mark.w + "px"; if (slotEl.style.getPropertyValue("--mw") !== mw) { slotEl.style.setProperty("--mw", mw); slotEl.style.setProperty("--mh", state.mark.h + "px"); } }
     if (ctxEl.canvas) {
       if (ctxEl.canvas.width !== frame.width || ctxEl.canvas.height !== frame.height) { ctxEl.canvas.width = frame.width; ctxEl.canvas.height = frame.height; ctxEl.canvas.parentElement!.style.setProperty("--fw", frameSize().w + "px"); }
       drawFrame(ctxEl.canvas, stageFrame);

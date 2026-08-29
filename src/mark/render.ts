@@ -1,10 +1,30 @@
 import type { Mark } from "../core/state";
 
+// the mark's box is measured from its content: text at `size` px (or an image at size*2 tall)
+// plus a little padding, more when a box/pill frame is drawn around it.
+function metrics(mark: Mark) {
+  const boxed = mark.shape !== "bare";
+  const line = boxed ? Math.max(2, mark.size * 0.06) : 0;
+  const pad = boxed ? mark.size * 0.45 : mark.size * 0.12;
+  return { boxed, line, pad };
+}
+
+const measureCanvas = typeof document !== "undefined" ? document.createElement("canvas") : null;
+export function measureMark(mark: Mark): { w: number; h: number } {
+  if (mark.image) { const h = mark.size * 2; return { w: Math.max(1, Math.round((h * mark.image.width) / mark.image.height)), h }; }
+  const ctx = measureCanvas!.getContext("2d")!;
+  ctx.font = `${mark.size}px "${mark.font}"`;
+  const m = ctx.measureText(mark.text || " ");
+  const th = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) || mark.size;
+  const { line, pad } = metrics(mark);
+  if (mark.shape === "circle") { const d = Math.ceil(Math.max(m.width, th) + (pad + line) * 2); return { w: d, h: d }; }
+  return { w: Math.ceil(m.width + (pad + line) * 2), h: Math.ceil(th + (pad + line) * 2) };
+}
+
 // draws the static mark (shape + fg only, never bg) into a canvas. pure function of mark.
-// bg is composited per destination so ascii can read pure alpha coverage.
 // scale = supersampling factor, bleed = extra room around the mark so deflections can
 // leave its rect without being clipped: the canvas is (mark.w*bleed*scale) x (mark.h*bleed*scale)
-// pixels and the mark is drawn at its true size in the centre.
+// pixels and the mark is drawn at its true size in the centre. bg is composited per destination.
 export function renderMark(mark: Mark, canvas: HTMLCanvasElement, scale = 1, bleed = 1) {
   canvas.width = Math.round(mark.w * bleed * scale); canvas.height = Math.round(mark.h * bleed * scale);
   const ctx = canvas.getContext("2d")!;
@@ -12,43 +32,33 @@ export function renderMark(mark: Mark, canvas: HTMLCanvasElement, scale = 1, ble
   ctx.scale(scale, scale);
   ctx.translate((mark.w * (bleed - 1)) / 2, (mark.h * (bleed - 1)) / 2);
 
-  if (mark.image) {
-    const im = mark.image;
-    const s = Math.min((mark.w * 0.85) / im.width, (mark.h * 0.85) / im.height);
-    const w = im.width * s, h = im.height * s;
-    ctx.drawImage(im, (mark.w - w) / 2, (mark.h - h) / 2, w, h);
-    return;
-  }
+  if (mark.image) { ctx.drawImage(mark.image, 0, 0, mark.w, mark.h); return; }
 
   const text = mark.text || " ";
-  const boxed = mark.shape !== "bare";
-  const line = Math.max(2, Math.min(mark.w, mark.h) * 0.04);
-  // inside a frame the text gets less room; the frame itself sits just inside the mark
-  const fitW = mark.w * (boxed ? 0.78 : 0.9), fitH = mark.h * (boxed ? 0.55 : 0.7);
-  let size = fitH;
-  ctx.font = `${size}px "${mark.font}"`;
-  const tw = ctx.measureText(text).width;
-  if (tw > fitW) { size *= fitW / tw; ctx.font = `${size}px "${mark.font}"`; }
-  ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  const cx = mark.w / 2, cy = mark.h / 2;
+  const { boxed, line } = metrics(mark);
+  ctx.font = `${mark.size}px "${mark.font}"`;
+  ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  const m = ctx.measureText(text);
+  const th = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  const cx = mark.w / 2, baseline = (mark.h - th) / 2 + m.actualBoundingBoxAscent; // text vertically centred in the box
 
   if (boxed) {
-    const inset = line * 1.5, x = inset, y = inset, w = mark.w - inset * 2, h = mark.h - inset * 2;
+    const inset = line / 2, x = inset, y = inset, w = mark.w - line, h = mark.h - line;
     ctx.lineWidth = line; ctx.strokeStyle = mark.fg;
     ctx.beginPath();
-    if (mark.shape === "pill") ctx.roundRect(x, y, w, h, h / 2); else ctx.rect(x, y, w, h);
+    if (mark.shape === "circle") ctx.arc(mark.w / 2, mark.h / 2, (mark.w - line) / 2, 0, Math.PI * 2); else ctx.rect(x, y, w, h);
     ctx.stroke();
   }
 
   if (mark.mode === "3d") {
-    const depth = Math.max(2, size * 0.06);
+    const depth = Math.max(1, mark.size * 0.05);
     ctx.fillStyle = shade(mark.fg);
-    for (let i = depth; i > 0; i--) ctx.fillText(text, cx + i, cy + i);
-    ctx.fillStyle = mark.fg; ctx.fillText(text, cx, cy);
+    for (let i = depth; i > 0; i -= 0.5) ctx.fillText(text, cx + i, baseline + i);
+    ctx.fillStyle = mark.fg; ctx.fillText(text, cx, baseline);
   } else if (mark.mode === "outline") {
-    ctx.lineWidth = Math.max(1.5, size * 0.03); ctx.strokeStyle = mark.fg; ctx.strokeText(text, cx, cy);
+    ctx.lineWidth = Math.max(1, mark.size * 0.03); ctx.strokeStyle = mark.fg; ctx.strokeText(text, cx, baseline);
   } else {
-    ctx.fillStyle = mark.fg; ctx.fillText(text, cx, cy);
+    ctx.fillStyle = mark.fg; ctx.fillText(text, cx, baseline);
   }
 }
 

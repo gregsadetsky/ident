@@ -50,7 +50,7 @@ test("404 zip: ascii page renders colored text, no canvas", async ({ page, brows
   const q = await browser.newPage(); const errs: string[] = []; q.on("pageerror", (e) => errs.push(e.message));
   await q.goto("file://" + join(dir, "404.html")); await q.waitForTimeout(3500);
   const txt = (await q.locator("#ident pre").textContent())!;
-  expect(txt.replace(/\s/g, "").length).toBeGreaterThan(150);
+  expect(txt.replace(/\s/g, "").length).toBeGreaterThan(80);
   expect(txt).toMatch(/^[ .:\-=+*#%@\n]*$/);
   expect(await q.locator("#ident canvas").count()).toBe(0);
   expect(await q.locator("#ident pre").evaluate((e) => getComputedStyle(e).color)).toBe("rgb(255, 77, 0)");

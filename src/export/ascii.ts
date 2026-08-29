@@ -15,9 +15,10 @@ export function pixelsToAscii(d: Uint8ClampedArray | Uint8Array, cols: number, r
   return lines.join("\n");
 }
 
-// one character cell stands for CELL x 2*CELL pixels of the mark, so a bigger mark
+// one character cell stands for CELL x 2*CELL pixels of the mark (ascii art reads bigger than
+// the px mark: a 40px wordmark is ~67 columns), so a bigger mark
 // takes more characters (and a wider one more columns), never fewer.
-export const CELL = 6;
+export const CELL = 3;
 export function asciiGrid(width: number, height: number): { cols: number; rows: number } {
   return { cols: Math.max(1, Math.round(width / CELL)), rows: Math.max(1, Math.round(height / (CELL * 2))) };
 }

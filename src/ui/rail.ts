@@ -33,10 +33,7 @@ export function mountRail(root: HTMLElement) {
         <label>bg <input id="bg" type="color"></label>
         <label title="transparent background"><input id="bgt" type="checkbox"> no bg</label>
       </div>
-      <div class="row">
-        <label>w <input id="w" type="number" min="32" max="2048" step="16"></label>
-        <label>h <input id="h" type="number" min="32" max="2048" step="16"></label>
-      </div>
+      <label class="sizerow">size <input id="size" type="range" min="12" max="120" step="1"> <output id="sizeOut"></output></label>
     </section>
     <section>
       <div class="sub">enter</div>
@@ -66,7 +63,7 @@ export function mountRail(root: HTMLElement) {
   };
 
   $("mode").replaceWith(chips(["fill", "outline", "3d"], () => state.mark.mode, (v) => { state.mark.mode = v as RenderMode; }));
-  $("shape").replaceWith(chips(["bare", "box", "pill"], () => state.mark.shape, (v) => { state.mark.shape = v as Shape; }));
+  $("shape").replaceWith(chips(["bare", "box", "circle"], () => state.mark.shape, (v) => { state.mark.shape = v as Shape; }));
 
   const fg = $<HTMLInputElement>("fg"), bg = $<HTMLInputElement>("bg"), bgt = $<HTMLInputElement>("bgt");
   fg.value = state.mark.fg; bg.value = "#000000"; bgt.checked = state.mark.bg === "transparent";
@@ -75,11 +72,11 @@ export function mountRail(root: HTMLElement) {
   bg.classList.toggle("off", bgt.checked);
   bg.oninput = () => { bgt.checked = false; setBg(); }; bgt.onchange = setBg;
 
-  const w = $<HTMLInputElement>("w"), h = $<HTMLInputElement>("h");
-  w.value = String(state.mark.w); h.value = String(state.mark.h);
-  const setSize = () => update((s) => { s.mark.w = +w.value || 512; s.mark.h = +h.value || 192; });
-  w.onchange = setSize; h.onchange = setSize;
-  subscribe((s) => { if (document.activeElement !== w) w.value = String(s.mark.w); if (document.activeElement !== h) h.value = String(s.mark.h); });
+  const size = $<HTMLInputElement>("size"), sizeOut = $<HTMLOutputElement>("sizeOut");
+  const showSize = () => { sizeOut.textContent = `${state.mark.size}px · ${state.mark.w}×${state.mark.h}`; };
+  size.value = String(state.mark.size); showSize();
+  size.oninput = () => update((s) => { s.mark.size = +size.value; });
+  subscribe(showSize);
 
   $("enter").replaceWith(chips(ENTER_MOVES, () => state.moves.enter, (v) => { state.moves.enter = v; }, triggerEnter));
   const react = chips(REACT_MOVES, () => state.moves.react, (v) => { state.moves.react = v; }, triggerReact);
