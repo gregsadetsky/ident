@@ -54,6 +54,7 @@ export function mountRail(root: HTMLElement) {
         <label>glow <input id="glow" type="range" min="0" max="1" step="0.05"></label>
         <label>scanlines <input id="scan" type="range" min="0" max="1" step="0.05"></label>
         <label>curve <input id="curve" type="range" min="0" max="1" step="0.05"></label>
+        <button id="randomize" class="chip">randomize</button>
       </details>
     </section>
   `);
@@ -112,6 +113,18 @@ export function mountRail(root: HTMLElement) {
     const el = $<HTMLInputElement>(k); el.value = String(state.tuning[k]);
     el.oninput = () => update((s) => { s.tuning[k] = +el.value; });
   }
+  // randomize: every advanced knob within its slider range, then replay on-load to show it
+  const sliders = { speed, bounce, persist, glow: $<HTMLInputElement>("glow"), scan: $<HTMLInputElement>("scan"), curve: $<HTMLInputElement>("curve") };
+  $("randomize").onclick = () => {
+    update((s) => {
+      for (const k of Object.keys(sliders) as (keyof typeof sliders)[]) {
+        const el = sliders[k], min = +el.min, max = +el.max, step = +el.step;
+        const v = Math.round((min + Math.random() * (max - min)) / step) * step;
+        s.tuning[k] = +v.toFixed(3); el.value = String(s.tuning[k]);
+      }
+    });
+    triggerEnter();
+  };
 
   // drop anywhere on the page
   // upload ui is currently hidden (kept: drag-drop anywhere still works, the drop box isn't shown)

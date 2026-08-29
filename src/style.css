@@ -27,6 +27,7 @@ h2.gap, h3.gap { margin-top: 12px; }
 #rail input[type=color].off { opacity: .3; }
 #rail label { display: inline-flex; gap: 5px; align-items: center; }
 #rail details label { display: flex; gap: 8px; margin-top: 6px; }
+#randomize { margin-top: 10px; }
 #rail details label input { flex: 1; }
 #rail details { margin-top: 16px; }
 #rail summary { cursor: pointer; color: #666; user-select: none; }

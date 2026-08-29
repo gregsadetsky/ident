@@ -157,6 +157,11 @@ export function mountStage(root: HTMLElement) {
           asciiSmall.set(src, canvasToAscii(thumbCrop, undefined, g));
         }
         t.asc.textContent = asciiSmall.get(src)!;
+        if (d.id === "404") { // the 404 page is an ascii web page: it takes the mark's colours
+          const bg = state.mark.bg === "transparent" ? "#000" : state.mark.bg;
+          if (t.asc.style.color !== state.mark.fg) t.asc.style.color = state.mark.fg;
+          if (t.asc.parentElement!.style.background !== bg) t.asc.parentElement!.style.background = bg;
+        }
         const scale = Math.min(150 / (g.cols * 6.02), 52 / (g.rows * 10)); // 10px mono ~ 6px wide
         const tr = `scale(${scale.toFixed(3)})`; if (t.asc.style.transform !== tr) { t.asc.style.transform = tr; t.asc.style.width = g.cols + "ch"; }
       }
