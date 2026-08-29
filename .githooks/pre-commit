@@ -1,0 +1,6 @@
+#!/bin/sh
+# unit + e2e before every commit. skip with: git commit --no-verify
+set -e
+cd "$(git rev-parse --show-toplevel)"
+npm test --silent
+npm run test:e2e --silent

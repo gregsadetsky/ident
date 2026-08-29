@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "gifenc": "^1.0.3",

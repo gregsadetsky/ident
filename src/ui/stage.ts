@@ -4,6 +4,7 @@ import { canvasToAscii } from "../export/ascii";
 import { downloadStill } from "../export/still";
 import { download, encodeGif, encodeMp4 } from "../export/video";
 import { makeFloating } from "./floating";
+import { normalizeSiteUrl } from "../core/url";
 
 // exports: label + action (undefined = not built yet)
 interface Export { label: string; run?: () => void }
@@ -82,10 +83,7 @@ export function mountStage(root: HTMLElement) {
     const url = context.querySelector<HTMLInputElement>("#siteurl");
     if (url) {
       url.value = state.siteUrl;
-      url.onchange = () => update((s) => {
-        const v = url.value.trim();
-        s.siteUrl = v && !/^https?:\/\//i.test(v) ? "https://" + v : v;
-      });
+      url.onchange = () => update((s) => { s.siteUrl = normalizeSiteUrl(url.value); });
       const fr = context.querySelector<HTMLIFrameElement>("iframe")!;
       if (state.siteUrl) fr.src = state.siteUrl;
       context.querySelector(".site")!.classList.toggle("framed", !!state.siteUrl);
